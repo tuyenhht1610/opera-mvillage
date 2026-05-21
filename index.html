@@ -2,917 +2,533 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Opera Cloud — Lộ trình triển khai Mvillage</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Opera Cloud — Mvillage</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --teal: #1D9E75;
-    --teal-light: #E1F5EE;
-    --teal-mid: #5DCAA5;
-    --purple: #534AB7;
-    --purple-light: #EEEDFE;
-    --amber: #BA7517;
-    --amber-light: #FAEEDA;
-    --coral: #993C1D;
-    --coral-light: #FAECE7;
-    --gray: #888780;
-    --gray-light: #F1EFE8;
-    --dark: #1A1918;
-    --mid: #444441;
-    --border: #D3D1C7;
-    --bg: #FAF9F6;
-    --white: #FFFFFF;
-    --font-main: 'DM Sans', sans-serif;
-    --font-mono: 'DM Mono', monospace;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--font-main);
-    background: var(--bg);
-    color: var(--dark);
-    min-height: 100vh;
-    padding: 0;
-  }
-
-  /* ── HEADER ── */
-  .header {
-    background: var(--dark);
-    color: #fff;
-    padding: 32px 48px 28px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-  }
-  .header-left {}
-  .header-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--teal-mid);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .header-title {
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 6px;
-  }
-  .header-sub {
-    font-size: 14px;
-    color: #9c9a92;
-    font-weight: 300;
-  }
-  .header-meta {
-    display: flex;
-    gap: 24px;
-    align-items: flex-end;
-    flex-shrink: 0;
-  }
-  .meta-item { text-align: right; }
-  .meta-val {
-    font-family: var(--font-mono);
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--teal-mid);
-    line-height: 1;
-  }
-  .meta-label {
-    font-size: 11px;
-    color: #9c9a92;
-    margin-top: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  /* ── NAV TABS ── */
-  .nav {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 0 48px;
-    display: flex;
-    gap: 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-tab {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    padding: 14px 20px;
-    cursor: pointer;
-    color: var(--gray);
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    white-space: nowrap;
-    letter-spacing: 0.04em;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-  }
-  .nav-tab:hover { color: var(--dark); }
-  .nav-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
-
-  /* ── PAGES ── */
-  .page { display: none; padding: 40px 48px 60px; }
-  .page.active { display: block; }
-
-  /* ── TIMELINE PAGE ── */
-  .timeline-wrap { position: relative; }
-
-  /* Month ruler */
-  .month-ruler {
-    display: grid;
-    grid-template-columns: 200px repeat(26, 1fr);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0;
-    background: var(--white);
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
-  }
-  .ruler-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--gray);
-    padding: 10px 0 10px 16px;
-    border-right: 1px solid var(--border);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    background: var(--gray-light);
-  }
-  .ruler-week {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--gray);
-    text-align: center;
-    padding: 6px 2px 4px;
-    border-right: 1px solid var(--border);
-    line-height: 1.3;
-  }
-  .ruler-week .week-num { color: var(--mid); font-weight: 500; display: block; }
-  .ruler-week .month-tag { color: var(--gray); display: block; font-size: 9px; }
-
-  /* Phase rows */
-  .phase-row {
-    display: grid;
-    grid-template-columns: 200px repeat(26, 1fr);
-    border-bottom: 1px solid var(--border);
-    background: var(--white);
-    min-height: 56px;
-    position: relative;
-  }
-  .phase-row:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
-  .phase-label {
-    padding: 10px 12px 10px 16px;
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
-  }
-  .phase-name {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-  .phase-sub {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--gray);
-  }
-  .phase-cell {
-    border-right: 1px solid var(--border);
-    position: relative;
-    min-height: 56px;
-  }
-  .phase-cell:last-child { border-right: none; }
-
-  /* Gantt bars */
-  .gantt-bar {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 28px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 500;
-    white-space: nowrap;
-    z-index: 2;
-    overflow: hidden;
-  }
-
-  /* Sub-task rows */
-  .task-row {
-    display: grid;
-    grid-template-columns: 200px repeat(26, 1fr);
-    border-bottom: 1px solid #ECEAE3;
-    background: var(--bg);
-    min-height: 36px;
-  }
-  .task-label {
-    padding: 6px 12px 6px 28px;
-    border-right: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--mid);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .task-label::before {
-    content: '';
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-  }
-  .task-cell {
-    border-right: 1px solid #ECEAE3;
-    position: relative;
-    min-height: 36px;
-  }
-  .task-cell:last-child { border-right: none; }
-  .task-bar {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 18px;
-    border-radius: 3px;
-    z-index: 2;
-  }
-
-  /* Milestone diamond */
-  .milestone {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
-    width: 14px;
-    height: 14px;
-    border-radius: 2px;
-    z-index: 3;
-  }
-
-  /* today line */
-  .today-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #E24B4A;
-    z-index: 10;
-    pointer-events: none;
-  }
-  .today-label {
-    position: absolute;
-    top: -22px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    background: #E24B4A;
-    color: white;
-    padding: 2px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
-  }
-
-  /* ── INTEGRATION MAP PAGE ── */
-  .int-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-top: 8px;
-  }
-  .int-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .int-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-  .int-card.p1::before { background: var(--teal); }
-  .int-card.p2::before { background: var(--amber); }
-  .int-card.p3::before { background: var(--gray); }
-  .int-card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .int-card-title { font-size: 15px; font-weight: 600; line-height: 1.2; }
-  .int-card-channel {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    margin-left: 8px;
-    flex-shrink: 0;
-  }
-  .channel-ohip { background: var(--teal-light); color: var(--teal); }
-  .channel-opi { background: var(--purple-light); color: var(--purple); }
-  .channel-event { background: var(--amber-light); color: var(--amber); }
-  .channel-etl { background: var(--gray-light); color: var(--mid); }
-  .int-card-flows { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
-  .int-flow {
-    font-size: 12px;
-    color: var(--mid);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    line-height: 1.4;
-  }
-  .int-flow::before { content: '→'; color: var(--teal); flex-shrink: 0; font-weight: 600; }
-  .priority-badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-  .p1-badge { background: var(--teal-light); color: var(--teal); }
-  .p2-badge { background: var(--amber-light); color: var(--amber); }
-  .p3-badge { background: var(--gray-light); color: var(--mid); }
-  .int-card-bottom {
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .int-cost {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--teal);
-    font-weight: 500;
-  }
-
-  /* ── CHECKLIST PAGE ── */
-  .checklist-section { margin-bottom: 32px; }
-  .checklist-section-title {
-    font-size: 13px;
-    font-weight: 600;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--gray);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .checklist-section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .check-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .check-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.1s;
-  }
-  .check-item:last-child { border-bottom: none; }
-  .check-item:hover { background: var(--bg); }
-  .check-item.done { opacity: 0.5; }
-  .check-item.done .check-text { text-decoration: line-through; }
-  .check-box {
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-  .check-item.done .check-box {
-    background: var(--teal);
-    border-color: var(--teal);
-    color: white;
-  }
-  .check-text { font-size: 13px; line-height: 1.5; flex: 1; }
-  .check-owner {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--gray);
-    white-space: nowrap;
-    margin-top: 2px;
-  }
-  .progress-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .progress-track {
-    flex: 1;
-    height: 6px;
-    background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--teal);
-    border-radius: 3px;
-    transition: width 0.3s;
-  }
-  .progress-label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--teal);
-    font-weight: 500;
-    min-width: 32px;
-    text-align: right;
-  }
-
-  /* ── RISK PAGE ── */
-  .risk-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--white);
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  .risk-table th {
-    background: var(--dark);
-    color: white;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 12px 16px;
-    text-align: left;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .risk-table td {
-    padding: 14px 16px;
-    font-size: 13px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-    line-height: 1.5;
-  }
-  .risk-table tr:last-child td { border-bottom: none; }
-  .risk-table tr:nth-child(even) td { background: var(--bg); }
-  .risk-badge {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-  .risk-high { background: var(--coral-light); color: var(--coral); }
-  .risk-mid { background: var(--amber-light); color: var(--amber); }
-  .risk-low { background: var(--teal-light); color: var(--teal); }
-
-  /* ── PAGE TITLE ── */
-  .page-title {
-    margin-bottom: 24px;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-  }
-  .page-title h2 {
-    font-size: 22px;
-    font-weight: 600;
-  }
-  .page-title-sub {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--gray);
-  }
-
-  /* scrollable timeline container */
-  .tl-scroll { overflow-x: auto; padding-bottom: 8px; }
-  .tl-inner { min-width: 900px; }
+:root{--teal:#1D9E75;--tl:#E1F5EE;--purple:#534AB7;--pl:#EEEDFE;--amber:#BA7517;--al:#FAEEDA;--coral:#993C1D;--cl:#FAECE7;--gray:#888780;--gl:#F1EFE8;--dark:#1A1918;--mid:#444441;--bd:#D3D1C7;--bg:#FAF9F6;--wh:#FFFFFF;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);}
+.hdr{background:var(--dark);color:#fff;padding:28px 48px;display:flex;align-items:flex-end;justify-content:space-between;}
+.ey{font-family:'DM Mono',monospace;font-size:11px;color:#5DCAA5;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
+.ht{font-size:26px;font-weight:600;margin-bottom:4px;}
+.hs{font-size:13px;color:#9c9a92;}
+.mv{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:#5DCAA5;}
+.ml{font-size:10px;color:#9c9a92;margin-top:2px;text-transform:uppercase;letter-spacing:.08em;}
+.nav{background:var(--wh);border-bottom:1px solid var(--bd);padding:0 48px;display:flex;position:sticky;top:0;z-index:100;}
+.nt{font-family:'DM Mono',monospace;font-size:12px;padding:13px 18px;cursor:pointer;color:var(--gray);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;}
+.nt:hover{color:var(--dark);}
+.nt.active{color:var(--teal);border-bottom-color:var(--teal);}
+.pg{display:none;padding:36px 48px 60px;}
+.pg.active{display:block;}
+.pt{margin-bottom:20px;display:flex;align-items:baseline;justify-content:space-between;}
+.pt h2{font-size:21px;font-weight:600;}
+.ps{font-family:'DM Mono',monospace;font-size:12px;color:var(--gray);}
+.card{background:var(--wh);border:1px solid var(--bd);border-radius:10px;padding:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stat-val{font-size:26px;font-weight:500;font-family:'DM Mono',monospace;}
+.stat-lbl{font-size:12px;color:var(--gray);margin-top:4px;}
+.tog{display:flex;align-items:center;gap:0;margin-bottom:16px;background:var(--wh);border:1px solid var(--bd);border-radius:8px;overflow:hidden;width:fit-content;}
+.tb{font-family:'DM Mono',monospace;font-size:12px;padding:9px 22px;border:none;cursor:pointer;font-weight:500;}
+.dia-box{background:var(--wh);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:14px;}
+.dia-hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:10px;}
+.lst-mv{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.lst-vd{font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.li{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mid);padding:3px 0;}
+.mv-badge{background:#085041;color:#E1F5EE;font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:3px;flex-shrink:0;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bd);flex-shrink:0;}
+.mo{display:none;position:fixed;inset:0;background:rgba(26,25,24,.65);z-index:1000;align-items:center;justify-content:center;padding:24px;}
+.mo.open{display:flex;}
+.mbox{background:var(--wh);border-radius:14px;max-width:800px;width:100%;max-height:87vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);}
+.mh{padding:22px 26px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;position:sticky;top:0;background:var(--wh);z-index:10;border-radius:14px 14px 0 0;}
+.mt{font-size:17px;font-weight:600;}
+.ms2{font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);margin-top:3px;}
+.mc{width:30px;height:30px;border-radius:50%;background:var(--bg);border:1px solid var(--bd);cursor:pointer;font-size:15px;color:var(--gray);}
+.mc:hover{background:var(--bd);}
+.mb{padding:22px 26px 26px;}
+.sl{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sl::after{content:'';flex:1;height:.5px;background:var(--bd);}
+.ms3{margin-bottom:18px;}
+.it{font-family:'DM Mono',monospace;font-size:11px;padding:2px 8px;border-radius:4px;display:inline-block;margin-right:3px;}
+.tm{background:var(--tl);color:var(--teal);}
+.pm{background:var(--pl);color:var(--purple);}
+.mm{background:#085041;color:#E1F5EE;}
+.fs2{display:flex;gap:10px;padding:9px 0;border-bottom:.5px solid var(--bd);}
+.fs2:last-child{border-bottom:none;}
+.fn2{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;flex-shrink:0;margin-top:1px;}
+.ft2{font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px;}
+.fd2{font-size:12px;color:var(--mid);line-height:1.6;}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ic2{background:var(--bg);border-radius:7px;padding:11px 13px;font-size:12px;color:var(--mid);line-height:1.5;}
+.ic2 strong{display:block;font-size:13px;color:var(--dark);margin-bottom:3px;}
+.cb{font-family:'DM Mono',monospace;font-size:11px;background:var(--bg);border:.5px solid var(--bd);border-radius:6px;padding:7px 11px;margin-top:5px;line-height:1.7;}
+.wb{background:#FAEEDA;border-left:3px solid #EF9F27;border-radius:0 6px 6px 0;padding:7px 11px;font-size:12px;color:#633806;line-height:1.5;margin-top:6px;}
+.sw{background:var(--wh);border:.5px solid var(--bd);border-radius:9px;padding:14px;overflow-x:auto;margin-top:6px;}
+.sd{font-family:'DM Mono',monospace;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.sd::after{content:'';flex:1;height:.5px;background:var(--bd);display:block;}
+.ip{display:flex;gap:10px;padding:12px;background:var(--wh);border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:9px;margin-bottom:7px;}
+.ipl{min-width:82px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;padding-top:2px;}
+.rt{width:100%;border-collapse:collapse;background:var(--wh);border-radius:9px;overflow:hidden;border:1px solid var(--bd);}
+.rt th{background:var(--dark);color:#fff;font-family:'DM Mono',monospace;font-size:11px;padding:11px 15px;text-align:left;text-transform:uppercase;}
+.rt td{padding:13px 15px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.5;}
+.rt tr:last-child td{border-bottom:none;}
+.rt tr:nth-child(even) td{background:var(--bg);}
+.rb{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 9px;border-radius:18px;}
+.rh{background:var(--cl);color:var(--coral);}
+.rm{background:var(--al);color:var(--amber);}
+.rl{background:var(--tl);color:var(--teal);}
+.pr{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.pt2{flex:1;height:5px;background:var(--bd);border-radius:3px;overflow:hidden;}
+.pf{height:100%;background:var(--teal);border-radius:3px;transition:width .3s;}
+.pl2{font-family:'DM Mono',monospace;font-size:12px;color:var(--teal);font-weight:500;min-width:30px;text-align:right;}
+.ck{background:var(--wh);border:1px solid var(--bd);border-radius:7px;overflow:hidden;}
+.ci{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border-bottom:1px solid var(--bd);cursor:pointer;}
+.ci:last-child{border-bottom:none;}
+.ci:hover{background:var(--bg);}
+.ci.dn{opacity:.5;}
+.ci.dn .ct{text-decoration:line-through;}
+.cb2{width:17px;height:17px;border:1.5px solid var(--bd);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;}
+.ci.dn .cb2{background:var(--teal);border-color:var(--teal);color:#fff;}
+.ct{font-size:13px;line-height:1.4;flex:1;}
+.co{font-family:'DM Mono',monospace;font-size:10px;color:var(--gray);white-space:nowrap;margin-top:1px;}
+.cst{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.cst::after{content:'';flex:1;height:1px;background:var(--bd);}
+.csec{margin-bottom:24px;}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <div class="header-eyebrow">Oracle Hospitality</div>
-    <div class="header-title">Lộ trình triển khai Opera Cloud PMS</div>
-    <div class="header-sub">3,000 room keys · Hợp đồng 36 tháng</div>
+<div class="hdr">
+  <div>
+    <div class="ey">Oracle Hospitality</div>
+    <div class="ht">Lộ trình triển khai Opera Cloud PMS</div>
+    <div class="hs">3,000 room keys · Hợp đồng 36 tháng</div>
   </div>
-  <div class="header-meta">
-    <div class="meta-item">
-      <div class="meta-val">1/2027</div>
-      <div class="meta-label">Go-live target</div>
-    </div>
-    <div class="meta-item">
-      <div class="meta-val">8</div>
-      <div class="meta-label">Hệ thống tích hợp</div>
-    </div>
+  <div style="display:flex;gap:22px;align-items:flex-end">
+    <div><div class="mv">1/2027</div><div class="ml">Go-live target</div></div>
+    <div><div class="mv">8</div><div class="ml">MV Systems</div></div>
   </div>
 </div>
-
 <nav class="nav">
-  <button class="nav-tab active" onclick="switchPage('overview')">Mô hình tổng quan</button>
-  <button class="nav-tab" onclick="switchPage('timeline')">Lộ trình</button>
-  <button class="nav-tab" onclick="switchPage('integration')">Integration Map</button>
-  <button class="nav-tab" onclick="switchPage('booking')">Luồng booking</button>
-  <button class="nav-tab" onclick="switchPage('channel')">Channel Manager <span style="background:#1D9E75;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:3px;font-family:var(--font-mono)">MV</span></button>
-  <button class="nav-tab" onclick="switchPage('payment')">Luồng thanh toán <span style="background:#1D9E75;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:3px;font-family:var(--font-mono)">MV</span></button>
-  <button class="nav-tab" onclick="switchPage('backoffice')">Back Office Export</button>
-  <button class="nav-tab" onclick="switchPage('loyalty')">Loyalty <span style="background:#1D9E75;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:3px;font-family:var(--font-mono)">MV</span></button>
-  <button class="nav-tab" onclick="switchPage('pricing')">Pricing Engine <span style="background:#1D9E75;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:3px;font-family:var(--font-mono)">MV</span></button>
-  <button class="nav-tab" onclick="switchPage('implementation')">Đúc kết triển khai</button>
-  <button class="nav-tab" onclick="switchPage('checklist')">Checklist</button>
-  <button class="nav-tab" onclick="switchPage('risk')">Rủi ro</button>
+  <button class="nt active" onclick="switchPage('overview',this)">Mô hình tổng quan</button>
+  <button class="nt" onclick="switchPage('timeline',this)">Lộ trình</button>
+  <button class="nt" onclick="switchPage('implementation',this)">Đúc kết triển khai</button>
+  <button class="nt" onclick="switchPage('checklist',this)">Checklist</button>
+  <button class="nt" onclick="switchPage('risk',this)">Rủi ro</button>
 </nav>
 
-<!-- ═══════════════════════════════════════════
-     PAGE 0: OVERVIEW
-════════════════════════════════════════════ -->
-<div class="page active" id="page-overview">
-  <div class="page-title">
-    <h2>Mô hình triển khai tổng quan</h2>
-    <span class="page-title-sub">Opera Cloud là trung tâm · 6 system Mvillage tự build · 3 đối tác bên ngoài</span>
+<div class="pg active" id="pg-overview">
+  <div class="pt"><h2>Mô hình triển khai tổng quan</h2><span class="ps">Click vào node để xem chi tiết</span></div>
+  <div class="tog">
+    <button class="tb" id="btn-asis" onclick="switchDiagram('asis')" style="background:var(--dark);color:#fff">As-Is — Odoo 2026</button>
+    <button class="tb" id="btn-tobe" onclick="switchDiagram('tobe')" style="background:none;color:var(--gray)">To-Be — Opera Cloud 2027</button>
   </div>
-
-  <!-- Summary stats -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
-      <div style="font-size:28px;font-weight:500;color:var(--teal);font-family:var(--font-mono)">6</div>
-      <div style="font-size:12px;color:var(--gray);margin-top:4px">System MV tự build</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
-      <div style="font-size:28px;font-weight:500;color:var(--purple);font-family:var(--font-mono)">3</div>
-      <div style="font-size:12px;color:var(--gray);margin-top:4px">Đối tác / vendor</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
-      <div style="font-size:28px;font-weight:500;color:var(--dark);font-family:var(--font-mono)">3,000</div>
-      <div style="font-size:12px;color:var(--gray);margin-top:4px">Room keys</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
-      <div style="font-size:28px;font-weight:500;color:var(--coral);font-family:var(--font-mono)">1/2027</div>
-      <div style="font-size:12px;color:var(--gray);margin-top:4px">Go-live target</div>
-    </div>
+  <div id="stats-asis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--teal)">8</div><div class="stat-lbl">MV systems hiện tại</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--purple)">10</div><div class="stat-lbl">Đối tác / vendor</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--dark)">Odoo 14</div><div class="stat-lbl">Core system</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--amber)">2026</div><div class="stat-lbl">Trạng thái hiện tại</div></div>
   </div>
-
-  <!-- Main diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
-    <svg width="100%" viewBox="0 0 680 700" role="img">
-      <title>Mô hình triển khai tổng quan Mvillage</title>
-      <desc>Opera Cloud là trung tâm kết nối với 6 system Mvillage tự build và 3 đối tác</desc>
-      <defs>
-        <marker id="ov-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </marker>
-      </defs>
-
-      <!-- Opera Core -->
-      <rect x="240" y="280" width="200" height="72" rx="12" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#3C3489" x="340" y="308" text-anchor="middle" dominant-baseline="central">Opera Cloud</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#534AB7" x="340" y="330" text-anchor="middle" dominant-baseline="central">PMS · source of truth</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#534AB7" x="340" y="346" text-anchor="middle" dominant-baseline="central">allotment · rate · folio</text>
-
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#1D9E75" font-weight="500" x="340" y="268" text-anchor="middle">Mvillage self-built systems</text>
-      <line x1="200" y1="272" x2="254" y2="272" stroke="#1D9E75" stroke-width="0.5"/>
-      <line x1="426" y1="272" x2="480" y2="272" stroke="#1D9E75" stroke-width="0.5"/>
-
-      <!-- Channel Manager -->
-      <rect x="236" y="130" width="208" height="56" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#085041" x="340" y="152" text-anchor="middle" dominant-baseline="central">Channel Manager</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#0F6E56" x="340" y="170" text-anchor="middle" dominant-baseline="central">MV tự build · hub phân phối</text>
-      <rect x="430" y="132" width="24" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="442" y="142" text-anchor="middle">MV</text>
-      <line x1="310" y1="280" x2="310" y2="186" stroke="#534AB7" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <line x1="370" y1="186" x2="370" y2="280" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="390" y="238">ARI</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="292" y="238">booking</text>
-
-      <!-- Website/App (MV) -->
-      <rect x="34" y="130" width="158" height="56" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#085041" x="113" y="152" text-anchor="middle" dominant-baseline="central">Website / App</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#0F6E56" x="113" y="170" text-anchor="middle" dominant-baseline="central">MV · direct booking</text>
-      <rect x="178" y="132" width="24" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="190" y="142" text-anchor="middle">MV</text>
-      <line x1="192" y1="158" x2="234" y2="158" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <line x1="234" y1="168" x2="192" y2="168" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-
-      <!-- Hotellink/OTA -->
-      <rect x="488" y="130" width="152" height="56" rx="10" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#633806" x="564" y="152" text-anchor="middle" dominant-baseline="central">Hotellink / OTA</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#854F0B" x="564" y="170" text-anchor="middle" dominant-baseline="central">Booking.com · Agoda</text>
-      <line x1="488" y1="158" x2="446" y2="158" stroke="#BA7517" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <line x1="446" y1="168" x2="488" y2="168" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-
-      <!-- Payment Adapter (MV) -->
-      <rect x="30" y="290" width="170" height="56" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#085041" x="115" y="312" text-anchor="middle" dominant-baseline="central">Payment Adapter</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#0F6E56" x="115" y="330" text-anchor="middle" dominant-baseline="central">VNPAY · OCB · webhook</text>
-      <rect x="186" y="292" width="24" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="198" y="302" text-anchor="middle">MV</text>
-      <line x1="200" y1="310" x2="240" y2="310" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <line x1="240" y1="322" x2="200" y2="322" stroke="#534AB7" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="220" y="308" text-anchor="middle">deposit</text>
-
-      <!-- Pricing Engine (MV) -->
-      <rect x="480" y="290" width="170" height="56" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#085041" x="565" y="312" text-anchor="middle" dominant-baseline="central">Pricing Engine</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#0F6E56" x="565" y="330" text-anchor="middle" dominant-baseline="central">MV · RM dashboard</text>
-      <rect x="636" y="292" width="24" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="648" y="302" text-anchor="middle">MV</text>
-      <line x1="480" y1="322" x2="440" y2="322" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <line x1="440" y1="310" x2="480" y2="310" stroke="#534AB7" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="460" y="308" text-anchor="middle">rate</text>
-
-      <!-- Fast ERP -->
-      <rect x="30" y="480" width="170" height="56" rx="10" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#633806" x="115" y="502" text-anchor="middle" dominant-baseline="central">Fast ERP</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#854F0B" x="115" y="520" text-anchor="middle" dominant-baseline="central">hạch toán · Back Office</text>
-      <line x1="240" y1="346" x2="152" y2="480" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="166" y="416" text-anchor="middle">Back Office</text>
-
-      <!-- Invoice Service -->
-      <rect x="250" y="490" width="180" height="56" rx="10" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#444441" x="340" y="512" text-anchor="middle" dominant-baseline="central">Invoice Service</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="340" y="530" text-anchor="middle" dominant-baseline="central">OFIS · HĐĐT · OHIP event</text>
-      <line x1="330" y1="352" x2="310" y2="490" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="288" y="424" text-anchor="middle">FOLIO_CLOSED</text>
-      <line x1="250" y1="520" x2="200" y2="520" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="225" y="513" text-anchor="middle">HĐĐT</text>
-
-      <!-- Loyalty Engine (MV) -->
-      <rect x="470" y="480" width="170" height="56" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#085041" x="555" y="502" text-anchor="middle" dominant-baseline="central">Loyalty Engine</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#0F6E56" x="555" y="520" text-anchor="middle" dominant-baseline="central">MV · tier · signup</text>
-      <rect x="626" y="482" width="24" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="638" y="492" text-anchor="middle">MV</text>
-      <line x1="440" y1="346" x2="528" y2="480" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="512" y="416" text-anchor="middle">CHECKOUT event</text>
-      <line x1="510" y1="480" x2="438" y2="352" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#888780" x="462" y="450" text-anchor="middle">membership</text>
-
-      <!-- OCB Bank -->
-      <rect x="30" y="600" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="14" font-weight="500" fill="#444441" x="90" y="618" text-anchor="middle" dominant-baseline="central">OCB Bank</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="90" y="634" text-anchor="middle" dominant-baseline="central">acquiring · settle</text>
-      <line x1="100" y1="600" x2="100" y2="536" stroke="#888780" stroke-width="1" marker-end="url(#ov-arrow)"/>
-      <line x1="150" y1="622" x2="200" y2="622" stroke="#888780" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ov-arrow)"/>
-      <rect x="202" y="610" width="120" height="24" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="262" y="624" text-anchor="middle" dominant-baseline="central">FAST gọi OCB API</text>
-
-      <!-- Legend -->
-      <line x1="30" y1="668" x2="56" y2="668" stroke="#534AB7" stroke-width="1.5" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="62" y="672">Định kỳ / event</text>
-      <line x1="178" y1="668" x2="204" y2="668" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ov-arrow)"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="210" y="672">Real-time 2 chiều</text>
-      <rect x="348" y="660" width="22" height="14" rx="3" fill="#085041"/>
-      <text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#E1F5EE" x="359" y="670" text-anchor="middle">MV</text>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="376" y="672">Mvillage tự build</text>
-      <rect x="496" y="658" width="14" height="14" rx="2" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="1"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="516" y="668">Teal = MV</text>
-      <rect x="590" y="658" width="14" height="14" rx="2" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
-      <text font-family="DM Sans,sans-serif" font-size="12" fill="#5F5E5A" x="610" y="668">Gray = vendor</text>
-    </svg>
+  <div id="stats-tobe" style="display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--teal)">8</div><div class="stat-lbl">MV systems rebuild</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--purple)">10</div><div class="stat-lbl">Đối tác / vendor</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--dark)">3,000</div><div class="stat-lbl">Room keys</div></div>
+    <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--coral)">1/2027</div><div class="stat-lbl">Go-live target</div></div>
   </div>
+  <div id="dia-asis" class="dia-box">
+    <div class="dia-hint">Kiến trúc hiện tại — Odoo là trung tâm · <span style="background:#085041;color:#E1F5EE;padding:1px 5px;border-radius:3px;font-size:9px">MV</span> = tự build</div>
+<svg width="100%" viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="aa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0,6 3,0 6" fill="#534AB7"/></marker>
+  <marker id="at2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0,6 3,0 6" fill="#1D9E75"/></marker>
+  <marker id="ag" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0,6 3,0 6" fill="#888780"/></marker>
+</defs>
+<rect x="290" y="210" width="180" height="60" rx="10" fill="#FAEEDA" stroke="#EF9F27" stroke-width="2.5"/>
+<text font-family="DM Sans,sans-serif" font-size="14" font-weight="700" fill="#633806" x="380" y="233" text-anchor="middle">Odoo 14</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#854F0B" x="380" y="249" text-anchor="middle">Core system · ERP</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#854F0B" x="380" y="263" text-anchor="middle">hotel ops · accounting</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#1D9E75" x="380" y="196" text-anchor="middle" font-weight="600">MV self-built systems</text>
+<line x1="230" y1="200" x2="302" y2="200" stroke="#1D9E75" stroke-width="0.5"/>
+<line x1="458" y1="200" x2="530" y2="200" stroke="#1D9E75" stroke-width="0.5"/>
+<rect x="10" y="10" width="120" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="70" y="27" text-anchor="middle">Website / App</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="70" y="42" text-anchor="middle">booking · CMS</text>
+<rect x="116" y="11" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="125" y="20" text-anchor="middle">MV</text>
+<line x1="130" y1="31" x2="290" y2="228" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="150" y="10" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="205" y="27" text-anchor="middle">CMS</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="205" y="42" text-anchor="middle">content management</text>
+<rect x="246" y="11" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="255" y="20" text-anchor="middle">MV</text>
+<line x1="210" y1="52" x2="320" y2="210" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="280" y="10" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="335" y="27" text-anchor="middle">Invoice MV</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="335" y="42" text-anchor="middle">HDDТ · Odoo folio</text>
+<rect x="376" y="11" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="385" y="20" text-anchor="middle">MV</text>
+<line x1="335" y1="52" x2="355" y2="210" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="410" y="10" width="120" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="470" y="27" text-anchor="middle">Booking Adapter</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="470" y="42" text-anchor="middle">Hotellink + Odoo</text>
+<rect x="516" y="11" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="525" y="20" text-anchor="middle">MV</text>
+<line x1="450" y1="52" x2="400" y2="210" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="550" y="10" width="120" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="610" y="27" text-anchor="middle">Payment Service</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="610" y="42" text-anchor="middle">xu ly payment</text>
+<rect x="656" y="11" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="665" y="20" text-anchor="middle">MV</text>
+<line x1="580" y1="52" x2="460" y2="210" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="620" y="130" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="675" y="147" text-anchor="middle">Loyalty Engine</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="675" y="162" text-anchor="middle">tier · signup</text>
+<rect x="716" y="131" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="725" y="140" text-anchor="middle">MV</text>
+<line x1="620" y1="151" x2="470" y2="230" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="620" y="220" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="675" y="237" text-anchor="middle">Profile Service</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="675" y="252" text-anchor="middle">guest profile mgmt</text>
+<rect x="716" y="221" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="725" y="230" text-anchor="middle">MV</text>
+<line x1="620" y1="241" x2="470" y2="248" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="620" y="310" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="675" y="327" text-anchor="middle">Promotion</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="675" y="342" text-anchor="middle">voucher · campaign</text>
+<rect x="716" y="311" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="725" y="320" text-anchor="middle">MV</text>
+<line x1="620" y1="331" x2="470" y2="262" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="620" y="400" width="110" height="42" rx="7" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#085041" x="675" y="415" text-anchor="middle">Import Group</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#0F6E56" x="675" y="430" text-anchor="middle">rooming list</text>
+<rect x="716" y="401" width="18" height="11" rx="2" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="7" font-weight="600" fill="#E1F5EE" x="725" y="410" text-anchor="middle">MV</text>
+<line x1="620" y1="421" x2="470" y2="268" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<rect x="10" y="130" width="90" height="36" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="10" font-weight="600" fill="#444441" x="55" y="145" text-anchor="middle">Hotellink</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="55" y="159" text-anchor="middle">OTA connector</text>
+<line x1="100" y1="148" x2="290" y2="230" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="10" y="185" width="90" height="36" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="10" font-weight="600" fill="#444441" x="55" y="200" text-anchor="middle">Fast ERP</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="55" y="214" text-anchor="middle">ke toan</text>
+<line x1="100" y1="203" x2="290" y2="240" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="10" y="240" width="90" height="36" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="10" font-weight="600" fill="#444441" x="55" y="255" text-anchor="middle">HubSpot</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="55" y="269" text-anchor="middle">CRM</text>
+<line x1="100" y1="258" x2="290" y2="248" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="10" y="295" width="90" height="36" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="10" font-weight="600" fill="#444441" x="55" y="310" text-anchor="middle">Viettel</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="55" y="324" text-anchor="middle">HDDТ chu nha</text>
+<line x1="100" y1="313" x2="290" y2="258" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="110" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="146" y="434" text-anchor="middle">OnePay</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="146" y="446" text-anchor="middle">payment</text>
+<line x1="170" y1="420" x2="330" y2="268" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="196" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="232" y="434" text-anchor="middle">OCB Bank</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="232" y="446" text-anchor="middle">acquiring</text>
+<line x1="240" y1="420" x2="340" y2="268" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="282" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="318" y="434" text-anchor="middle">TPBank</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#5F5E5A" x="318" y="446" text-anchor="middle">chu nha</text>
+<line x1="318" y1="420" x2="360" y2="268" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="368" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="404" y="434" text-anchor="middle">VNPAY</text>
+<line x1="390" y1="420" x2="390" y2="270" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="454" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="490" y="434" text-anchor="middle">LynkiD</text>
+<line x1="476" y1="420" x2="420" y2="270" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<rect x="540" y="420" width="72" height="32" rx="5" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="9" font-weight="600" fill="#444441" x="576" y="434" text-anchor="middle">Grab</text>
+<line x1="560" y1="420" x2="440" y2="270" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<line x1="10" y1="494" x2="30" y2="494" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#at2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="36" y="498">MV system</text>
+<line x1="110" y1="494" x2="130" y2="494" stroke="#888780" stroke-width="1" marker-end="url(#ag)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="136" y="498">Vendor / doi tac</text>
+</svg>
 
-  <!-- System list -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Mvillage tự build (6 systems)</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid)"><span style="background:#085041;color:#E1F5EE;font-family:var(--font-mono);font-size:9px;padding:1px 5px;border-radius:3px">MV</span>Website & App — Direct booking engine</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid)"><span style="background:#085041;color:#E1F5EE;font-family:var(--font-mono);font-size:9px;padding:1px 5px;border-radius:3px">MV</span>Channel Manager — Hub phân phối allotment</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid)"><span style="background:#085041;color:#E1F5EE;font-family:var(--font-mono);font-size:9px;padding:1px 5px;border-radius:3px">MV</span>Payment Adapter — Webhook VNPAY · OCB</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid)"><span style="background:#085041;color:#E1F5EE;font-family:var(--font-mono);font-size:9px;padding:1px 5px;border-radius:3px">MV</span>Pricing Engine — RM dashboard · rule engine</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid)"><span style="background:#085041;color:#E1F5EE;font-family:var(--font-mono);font-size:9px;padding:1px 5px;border-radius:3px">MV</span>Loyalty Engine — Tier · signup · market code</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Đối tác / vendor (3 systems)</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#D3D1C7;flex-shrink:0"></span>Hotellink — OTA connector · OHIP certified</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#D3D1C7;flex-shrink:0"></span>Fast ERP — Kế toán · hạch toán công nợ</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#D3D1C7;flex-shrink:0"></span>OCB Bank — Acquiring bank · settlement</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;align-items:center"><span style="width:8px;height:8px;border-radius:50%;background:#D3D1C7;flex-shrink:0"></span>Invoice Service (OFIS) — HĐĐT · Oracle</div>
-      </div>
-    </div>
   </div>
-</div>
+  <div id="dia-tobe" class="dia-box" style="display:none">
+    <div class="dia-hint">Kiến trúc tương lai — Opera Cloud là trung tâm · <span style="background:#085041;color:#E1F5EE;padding:1px 5px;border-radius:3px;font-size:9px">MV</span> = rebuild OHIP · Click node để xem chi tiết</div>
+<svg width="100%" viewBox="0 0 680 580" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="ba2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#534AB7"/></marker>
+  <marker id="bt2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#1D9E75"/></marker>
+  <marker id="bg2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#888780"/></marker>
+  <marker id="bam2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#BA7517"/></marker>
+</defs>
+<rect x="240" y="236" width="200" height="72" rx="12" fill="#EEEDFE" stroke="#534AB7" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="14" font-weight="700" fill="#3C3489" x="340" y="261" text-anchor="middle">Opera Cloud</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#534AB7" x="340" y="278" text-anchor="middle">PMS · source of truth</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#534AB7" x="340" y="293" text-anchor="middle">allotment · rate · folio</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#1D9E75" x="340" y="220" text-anchor="middle" font-weight="600">Mvillage self-built systems (rebuild → OHIP)</text>
+<line x1="200" y1="224" x2="254" y2="224" stroke="#1D9E75" stroke-width="0.5"/>
+<line x1="426" y1="224" x2="480" y2="224" stroke="#1D9E75" stroke-width="0.5"/>
+<g onclick="openModal('channel')" style="cursor:pointer">
+<rect x="234" y="100" width="212" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#085041" x="340" y="121" text-anchor="middle">Channel Manager</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#0F6E56" x="340" y="137" text-anchor="middle">MV rebuild · OHIP · hub phan phoi</text>
+<rect x="428" y="102" width="22" height="13" rx="3" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="439" y="112" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="340" y="148" text-anchor="middle">▸ click de xem chi tiet</text>
+</g>
+<line x1="310" y1="236" x2="310" y2="152" stroke="#534AB7" stroke-width="1.5" marker-end="url(#ba2)"/>
+<line x1="370" y1="152" x2="370" y2="236" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#bt2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="290" y="200">booking</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="376" y="200">ARI</text>
+<g onclick="openModal('booking')" style="cursor:pointer">
+<rect x="28" y="100" width="148" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#085041" x="102" y="121" text-anchor="middle">Website / App</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#0F6E56" x="102" y="137" text-anchor="middle">MV · OHIP · CMS</text>
+<rect x="162" y="102" width="22" height="13" rx="3" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="173" y="112" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="102" y="148" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="176" y1="126" x2="234" y2="126" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#bt2)"/>
+<line x1="234" y1="137" x2="176" y2="137" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#bt2)"/>
+<g onclick="openModal('hotellink')" style="cursor:pointer">
+<rect x="504" y="100" width="148" height="52" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#633806" x="578" y="121" text-anchor="middle">Hotellink / OTA</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#854F0B" x="578" y="137" text-anchor="middle">Booking.com · Agoda</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="578" y="148" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="504" y1="126" x2="448" y2="126" stroke="#BA7517" stroke-width="1.5" marker-end="url(#bam2)"/>
+<line x1="448" y1="137" x2="504" y2="137" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#bt2)"/>
+<g onclick="openModal('payment')" style="cursor:pointer">
+<rect x="22" y="252" width="170" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#085041" x="107" y="273" text-anchor="middle">Payment Service</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#0F6E56" x="107" y="289" text-anchor="middle">VNPAY · OCB · OHIP</text>
+<rect x="178" y="254" width="22" height="13" rx="3" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="189" y="264" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="107" y="300" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="192" y1="270" x2="240" y2="270" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#bt2)"/>
+<line x1="240" y1="282" x2="192" y2="282" stroke="#534AB7" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="216" y="266">deposit</text>
+<g onclick="openModal('pricing')" style="cursor:pointer">
+<rect x="488" y="252" width="170" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#085041" x="573" y="273" text-anchor="middle">Pricing Engine</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#0F6E56" x="573" y="289" text-anchor="middle">MV · RM dashboard</text>
+<rect x="644" y="254" width="22" height="13" rx="3" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="655" y="264" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="573" y="300" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="488" y1="282" x2="440" y2="282" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#bt2)"/>
+<line x1="440" y1="270" x2="488" y2="270" stroke="#534AB7" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="464" y="266">rate</text>
+<g onclick="openModal('backoffice')" style="cursor:pointer">
+<rect x="22" y="428" width="170" height="52" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#633806" x="107" y="449" text-anchor="middle">Fast ERP</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#854F0B" x="107" y="465" text-anchor="middle">hach toan · Back Office</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="107" y="476" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="240" y1="308" x2="148" y2="428" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="162" y="372">Back Office</text>
+<g onclick="openModal('invoice')" style="cursor:pointer">
+<rect x="240" y="432" width="200" height="52" rx="8" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="1"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#444441" x="340" y="453" text-anchor="middle">Invoice Service</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#5F5E5A" x="340" y="469" text-anchor="middle">OFIS → Invoice MV → Fast ERP</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="340" y="480" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="320" y1="308" x2="300" y2="432" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="276" y="374">FOLIO_CLOSED</text>
+<line x1="240" y1="458" x2="192" y2="458" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#bt2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="216" y="452">HDDТ</text>
+<g onclick="openModal('loyalty')" style="cursor:pointer">
+<rect x="488" y="428" width="170" height="52" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/>
+<text font-family="DM Sans,sans-serif" font-size="12" font-weight="700" fill="#085041" x="573" y="449" text-anchor="middle">Loyalty Engine</text>
+<text font-family="DM Sans,sans-serif" font-size="10" fill="#0F6E56" x="573" y="465" text-anchor="middle">MV · tier · LynkiD · Grab</text>
+<rect x="644" y="430" width="22" height="13" rx="3" fill="#085041"/><text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="655" y="440" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="8" fill="#888780" x="573" y="476" text-anchor="middle">▸ click de xem</text>
+</g>
+<line x1="440" y1="308" x2="538" y2="428" stroke="#534AB7" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="512" y="372">CHECKOUT event</text>
+<line x1="518" y1="428" x2="442" y2="308" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#bt2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#888780" x="468" y="398">membership</text>
+<rect x="22" y="526" width="110" height="36" rx="7" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#444441" x="77" y="540" text-anchor="middle">OCB Bank</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="77" y="554" text-anchor="middle">acquiring · settle</text>
+<line x1="77" y1="526" x2="77" y2="480" stroke="#888780" stroke-width="1" marker-end="url(#bg2)"/>
+<line x1="22" y1="572" x2="44" y2="572" stroke="#534AB7" stroke-width="1.5" marker-end="url(#ba2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="50" y="576">Dinh ky/event</text>
+<line x1="148" y1="572" x2="170" y2="572" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#bt2)"/>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="176" y="576">Real-time</text>
+<rect x="264" y="564" width="20" height="13" rx="3" fill="#085041"/>
+<text font-family="DM Sans,sans-serif" font-size="8" font-weight="600" fill="#E1F5EE" x="274" y="574" text-anchor="middle">MV</text>
+<text font-family="DM Sans,sans-serif" font-size="9" fill="#5F5E5A" x="290" y="576">Mvillage rebuild</text>
+</svg>
 
-<!-- ═══════════════════════════════════════════
-     PAGE 1: TIMELINE
-════════════════════════════════════════════ -->
-<div class="page" id="page-timeline">
-  <div class="page-title">
-    <h2>Lộ trình triển khai — Danh sách công việc</h2>
-    <span class="page-title-sub">Go-live target: 1/2027 · Timeline sẽ est sau</span>
   </div>
-
-  <div class="tl-scroll">
-    <div class="tl-inner" id="gantt-root"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE 2: INTEGRATION MAP
-════════════════════════════════════════════ -->
-<div class="page" id="page-integration">
-  <div class="page-title">
-    <h2>Integration Map — 8 hệ thống vệ tinh</h2>
-    <span class="page-title-sub">Opera Cloud là trung tâm · Own OHIP portal = miễn phí API call</span>
-  </div>
-
-  <div class="int-grid">
-    <div class="int-card p1">
-      <div class="int-card-header">
-        <div class="int-card-title">Website & App</div>
-        <span class="int-card-channel channel-ohip">OHIP REST</span>
+  <div class="g2">
+    <div id="list-asis" class="card">
+      <div class="lst-mv">MV tự build — Hiện tại (8 systems)</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="li"><span class="mv-badge">MV</span>Website / App — Direct booking + CMS</div>
+        <div class="li"><span class="mv-badge">MV</span>CMS — Content management</div>
+        <div class="li"><span class="mv-badge">MV</span>Invoice MV — HĐĐT nhận từ Odoo</div>
+        <div class="li"><span class="mv-badge">MV</span>Booking Adapter — Hotellink + Odoo</div>
+        <div class="li"><span class="mv-badge">MV</span>Payment Service — Xử lý payment</div>
+        <div class="li"><span class="mv-badge">MV</span>Loyalty Engine — Tier · signup</div>
+        <div class="li"><span class="mv-badge">MV</span>Profile Service — Guest profile mgmt</div>
+        <div class="li"><span class="mv-badge">MV</span>Promotion — Voucher · campaign</div>
+        <div class="li"><span class="mv-badge">MV</span>Import Group Booking — Rooming list</div>
       </div>
-      <span class="priority-badge p1-badge">P1 — Cao</span>
-      <div class="int-card-flows">
-        <div class="int-flow">Availability & rate → booking engine</div>
-        <div class="int-flow">Reservation 2 chiều real-time</div>
-        <div class="int-flow">Guest profile sync · pre-registration</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Miễn phí (own portal)</span>
+      <div class="lst-vd" style="margin-top:12px">Đối tác / vendor (10)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div class="li"><span class="dot"></span>Hotellink</div><div class="li"><span class="dot"></span>Fast ERP</div>
+        <div class="li"><span class="dot"></span>Viettel (HĐĐT)</div><div class="li"><span class="dot"></span>OnePay</div>
+        <div class="li"><span class="dot"></span>OCB Bank</div><div class="li"><span class="dot"></span>TPBank</div>
+        <div class="li"><span class="dot"></span>VNPAY</div><div class="li"><span class="dot"></span>HubSpot (CRM)</div>
+        <div class="li"><span class="dot"></span>LynkiD</div><div class="li"><span class="dot"></span>Grab</div>
       </div>
     </div>
-
-    <div class="int-card p1">
-      <div class="int-card-header">
-        <div class="int-card-title">Booking Adapter (Hotellink)</div>
-        <span class="int-card-channel channel-ohip">OHIP REST</span>
+    <div id="list-tobe" class="card" style="display:none">
+      <div class="lst-mv">MV rebuild kết nối Opera (8 systems)</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div class="li" style="cursor:pointer" onclick="openModal('booking')"><span class="mv-badge">MV</span>Website / App — OHIP direct booking</div>
+        <div class="li"><span class="mv-badge">MV</span>CMS — Content · web/app</div>
+        <div class="li" style="cursor:pointer" onclick="openModal('channel')"><span class="mv-badge">MV</span>Channel Manager — Hub phân phối · OHIP</div>
+        <div class="li" style="cursor:pointer" onclick="openModal('invoice')"><span class="mv-badge">MV</span>Invoice MV — Nhận từ OFIS · đẩy Fast ERP</div>
+        <div class="li" style="cursor:pointer" onclick="openModal('payment')"><span class="mv-badge">MV</span>Payment Service — OHIP deposit/payment</div>
+        <div class="li" style="cursor:pointer" onclick="openModal('loyalty')"><span class="mv-badge">MV</span>Loyalty Engine — Tier · LynkiD · Grab</div>
+        <div class="li"><span class="mv-badge">MV</span>Profile Service — OHIP profile sync</div>
+        <div class="li"><span class="mv-badge">MV</span>Promotion — Opera rate/package</div>
+        <div class="li"><span class="mv-badge">MV</span>Import Group Booking — Opera rooming list</div>
       </div>
-      <span class="priority-badge p1-badge">P1 — Cao</span>
-      <div class="int-card-flows">
-        <div class="int-flow">ARI Push: rate & inventory → OTA</div>
-        <div class="int-flow">Reservation từ OTA → Opera &lt;30s</div>
-        <div class="int-flow">Hotellink đã có OHIP certification</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Hotellink trả phí ($10/10k calls)</span>
-      </div>
-    </div>
-
-    <div class="int-card p1">
-      <div class="int-card-header">
-        <div class="int-card-title">Payment Service</div>
-        <span class="int-card-channel channel-opi">OPI Cloud</span>
-      </div>
-      <span class="priority-badge p1-badge">P1 — Cao</span>
-      <div class="int-card-flows">
-        <div class="int-flow">Token exchange · Pre-authorization</div>
-        <div class="int-flow">Pay By Link → deposit online</div>
-        <div class="int-flow">Settlement check-out tự động</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost" style="color:var(--coral)">⚠ Cần xác nhận PSP certified</span>
-      </div>
-    </div>
-
-    <div class="int-card p2">
-      <div class="int-card-header">
-        <div class="int-card-title">Invoice Service</div>
-        <span class="int-card-channel channel-event">Business Event</span>
-      </div>
-      <span class="priority-badge p2-badge">P2 — Vừa</span>
-      <div class="int-card-flows">
-        <div class="int-flow">FOLIO_CLOSED → xuất HĐĐT tự động</div>
-        <div class="int-flow">VAT 8% · Ký số OFIS</div>
-        <div class="int-flow">Ghi số HĐ ngược lại Opera</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Miễn phí (own portal)</span>
-      </div>
-    </div>
-
-    <div class="int-card p2">
-      <div class="int-card-header">
-        <div class="int-card-title">Profile & Loyalty</div>
-        <span class="int-card-channel channel-ohip">OHIP REST</span>
-      </div>
-      <span class="priority-badge p2-badge">P2 — Vừa</span>
-      <div class="int-card-flows">
-        <div class="int-flow">Guest profile 2 chiều</div>
-        <div class="int-flow">Membership card · Tier sync</div>
-        <div class="int-flow">Tính điểm OR logic sau check-out</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Miễn phí (own portal)</span>
-      </div>
-    </div>
-
-    <div class="int-card p2">
-      <div class="int-card-header">
-        <div class="int-card-title">Dynamic Pricing</div>
-        <span class="int-card-channel channel-ohip">OHIP REST</span>
-      </div>
-      <span class="priority-badge p2-badge">P2 — Vừa</span>
-      <div class="int-card-flows">
-        <div class="int-flow">Pull occupancy & rate mỗi sáng</div>
-        <div class="int-flow">Rule engine → RM duyệt</div>
-        <div class="int-flow">Ghi BAR + restrictions → Opera</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Miễn phí (own portal · tự build)</span>
-      </div>
-    </div>
-
-    <div class="int-card p3">
-      <div class="int-card-header">
-        <div class="int-card-title">Data Warehouse</div>
-        <span class="int-card-channel channel-etl">ETL batch</span>
-      </div>
-      <span class="priority-badge p3-badge">P3 — Sau go-live</span>
-      <div class="int-card-flows">
-        <div class="int-flow">Pull reservation + revenue hàng đêm</div>
-        <div class="int-flow">Folio data → BI & báo cáo</div>
-        <div class="int-flow">Oracle Reporting & Analytics làm tạm</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Miễn phí (own portal)</span>
-      </div>
-    </div>
-
-    <div class="int-card p1">
-      <div class="int-card-header">
-        <div class="int-card-title">Fast ERP — Hạch toán công nợ</div>
-        <span class="int-card-channel channel-etl">OCB API · Webhook</span>
-      </div>
-      <span class="priority-badge p1-badge">P1 — Cao</span>
-      <div class="int-card-flows">
-        <div class="int-flow">FAST gọi OCB API lấy DS giao dịch theo lịch</div>
-        <div class="int-flow">Match mã bill → xác định booking</div>
-        <div class="int-flow">Tạo chứng từ Nợ 113 / Có 1125 tự động</div>
-        <div class="int-flow">Payment Adapter post deposit/payment → Opera</div>
-        <div class="int-flow">Adapter check status: Confirmed→deposit · Checked-in→payment</div>
-      </div>
-      <div class="int-card-bottom">
-        <span class="int-cost">Mã bill = key đồng bộ Opera · Adapter · Fast ERP</span>
+      <div class="lst-vd" style="margin-top:12px">Đối tác / vendor (10)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div class="li" style="cursor:pointer" onclick="openModal('hotellink')"><span class="dot"></span>Hotellink</div>
+        <div class="li" style="cursor:pointer" onclick="openModal('backoffice')"><span class="dot"></span>Fast ERP</div>
+        <div class="li"><span class="dot"></span>Viettel (HĐĐT)</div><div class="li"><span class="dot"></span>VNPAY</div>
+        <div class="li"><span class="dot"></span>OCB Bank</div><div class="li"><span class="dot"></span>TPBank</div>
+        <div class="li"><span class="dot"></span>HubSpot (CRM)</div><div class="li"><span class="dot"></span>LynkiD</div>
+        <div class="li"><span class="dot"></span>Grab</div><div class="li" style="cursor:pointer" onclick="openModal('invoice')"><span class="dot"></span>OFIS Oracle</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     PAGE: CHANNEL MANAGER
-════════════════════════════════════════════ -->
-<div class="page" id="page-channel">
-  <div class="page-title">
-    <h2>Channel Manager <span style="background:#1D9E75;color:#fff;font-size:12px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono);vertical-align:middle">MV tự build</span></h2>
-    <span class="page-title-sub">Đứng giữa Opera · Website/App · Hotellink — kiểm soát allotment 2 kênh</span>
-  </div>
+<div class="pg" id="pg-timeline">
+  <div class="pt"><h2>Lộ trình triển khai</h2><span class="ps">Go-live target: 1/2027</span></div>
+  <div id="gantt-root"></div>
+</div>
 
-  <!-- 3 key cards -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Nhận quỹ phòng từ Opera</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Opera push allotment, rate, restrictions định kỳ qua OHIP. CM lưu vào Direct pool và OTA pool riêng biệt.</div>
+<div class="pg" id="pg-implementation">
+  <div class="pt"><h2>Đúc kết triển khai Opera Cloud</h2><span class="ps">Data migration · Lộ trình chi nhánh · Ảnh hưởng từ Odoo</span></div>
+  <div class="sd">Dữ liệu cần migrate sang Opera</div>
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-top:3px solid var(--purple)">
+      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Guest &amp; Company Profiles</div>
+      <div style="font-size:12px;color:var(--mid);line-height:1.7">Họ tên · email · SĐT · quốc tịch · CMND/Passport<br>Booking history → Stay Records import<br>Loyalty membership card nếu có<br>Preferences · VIP level · special requests<br>Company: MST · địa chỉ HĐ · contact person<br>Negotiated rates đã ký</div>
     </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Phân phối 2 kênh song song</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Direct quota → Website/App để bán trực tiếp. OTA quota → Hotellink → Booking.com, Agoda... ARI update real-time sau mỗi booking.</div>
+    <div class="card" style="border-top:3px solid var(--teal)">
+      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Reservations &amp; Rates</div>
+      <div style="font-size:12px;color:var(--mid);line-height:1.7"><strong>Future reservations confirmed — quan trọng nhất</strong><br>Deposit đã nhận cho future reservations<br>Group blocks đang active<br>Toàn bộ rate code đã setup (BAR, derived, seasonal)<br>Toàn bộ bar code theo từng room type<br>Toàn bộ rate restrictions đã cấu hình</div>
     </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--purple)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Đổ booking về Opera</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Booking từ cả 2 kênh đều POST vào Opera real-time với đúng market code. Opera vận hành check-in/out bình thường.</div>
+    <div class="card" style="border-top:3px solid var(--amber)">
+      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Accounting Setup</div>
+      <div style="font-size:12px;color:var(--mid);line-height:1.7">Transaction codes mapping với Fast ERP<br>Deposit ledger balance tại thời điểm cutover<br>AR balance công nợ chuyển sang<br>Market code list đầy đủ<br>AR profile cho từng công ty có công nợ: MST · hạn mức · billing<br>AR code mapping với Fast ERP</div>
     </div>
   </div>
+  <div class="wb" style="margin-bottom:20px"><strong>Lưu ý:</strong> Odoo không phải PMS — cần export dữ liệu từ Odoo, xử lý/transform đúng format Opera, Oracle Partner hỗ trợ migrate.</div>
+  <div class="sd">Lộ trình triển khai cho các chi nhánh</div>
+  <div class="g2" style="margin-bottom:20px">
+    <div class="card" style="border-radius:12px;overflow:hidden;padding:0">
+      <div style="background:var(--tl);border-bottom:1px solid #5DCAA5;padding:12px 16px;display:flex;align-items:center;gap:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--teal);color:#fff;padding:2px 7px;border-radius:3px">Kịch bản A</span>
+        <span style="font-size:14px;font-weight:600;color:#085041">Chi nhánh mới</span>
+      </div>
+      <div style="padding:14px">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Lợi thế</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.7;margin-bottom:10px">Không có gánh nặng migration · Dữ liệu clean từ đầu · Training nhanh hơn · Setup nhanh gọn</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--coral);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Bất lợi</div>
+        <div style="font-size:12px;color:var(--mid);line-height:1.7;margin-bottom:10px">Dedicate nhân sự riêng: FO · Sales · Kế toán vận hành tách biệt chain trong giai đoạn đầu</div>
+        <div style="background:var(--tl);border-radius:6px;padding:9px 11px;font-size:12px;color:#085041;line-height:1.6;margin-bottom:8px"><strong>Mục tiêu:</strong> Tạo config pilot chuẩn làm template cho tất cả chi nhánh sau.</div>
+        <div style="background:var(--al);border-radius:6px;padding:9px 11px;font-size:12px;color:#633806;line-height:1.6"><strong>Tiêu chí chọn:</strong> Resort hoặc city hotel đầy đủ · Không vướng hợp đồng chủ nhà · Đủ lớn để bao quát các tính năng</div>
+      </div>
+    </div>
+    <div class="card" style="border-radius:12px;overflow:hidden;padding:0">
+      <div style="background:var(--pl);border-bottom:1px solid #AFA9EC;padding:12px 16px;display:flex;align-items:center;gap:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--purple);color:#fff;padding:2px 7px;border-radius:3px">Kịch bản B</span>
+        <span style="font-size:14px;font-weight:600;color:#3C3489">Chi nhánh cũ</span>
+      </div>
+      <div style="padding:14px;display:flex;flex-direction:column;gap:7px">
+        <div class="ip" style="border-left-color:var(--gray)"><div class="ipl" style="color:var(--gray)">Phase 0</div><div><div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px">Chuẩn bị &amp; xử lý data</div><div style="font-size:11px;color:var(--mid);line-height:1.6">Hoàn thiện kiến trúc · Build &amp; test systems trên sandbox · <strong>Export từ Odoo, transform, Oracle Partner migrate</strong> · Chuẩn hóa data template</div></div></div>
+        <div class="ip" style="border-left-color:var(--purple)"><div class="ipl" style="color:var(--purple)">Phase 1<br>Pilot</div><div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px">Go-live với manual tasks cao</div>
+          <div style="font-size:11px;color:var(--mid);line-height:1.6;margin-bottom:6px">Training FO, HK, Accounting · Cutover ngày thấp điểm · Hypercare Oracle Partner on-site</div>
+          <div style="background:var(--cl);border-radius:6px;padding:7px 9px;font-size:11px;color:#712B13;line-height:1.7"><strong>Giai đoạn manual nhiều:</strong><br>· Xuất hóa đơn hàng ngày thủ công<br>· Post payment tay sau check-in<br>· Check reservation song song nhiều hệ thống<br>· Pricing vận hành song song trong giai đoạn chuyển tiếp</div>
+        </div></div>
+        <div class="ip" style="border-left-color:var(--teal)"><div class="ipl" style="color:var(--teal)">Phase 2</div><div><div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px">Replicate sang branch tiếp theo</div><div style="font-size:11px;color:var(--mid);line-height:1.6">Config pilot làm template · Customize phần khác biệt · Oracle Partner remote</div></div></div>
+        <div class="ip" style="border-left-color:var(--amber)"><div class="ipl" style="color:var(--amber)">Phase 3</div><div><div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:3px">Stabilize toàn chain</div><div style="font-size:11px;color:var(--mid);line-height:1.6">P2/P3 features · Loyalty cross-branch · Pricing Engine toàn chain</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sd">Ảnh hưởng chuyển đổi từ Odoo sang Opera</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div class="card">
+      <div style="margin-bottom:10px"><span style="background:var(--pl);color:var(--purple);font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">Vận hành — Training</span></div>
+      <div class="g2" style="gap:8px;font-size:12px;color:var(--mid)">
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--purple)"><strong>Tất cả department</strong> đều phải nhận training. Mỗi department phải có <strong>champion</strong> để training lại nhân viên mới sau này.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)"><strong>Night Audit</strong> là concept mới hoàn toàn — FO Manager và kế toán cần train kỹ nhất.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)"><strong>Housekeeping</strong> sẽ được implement workflow Opera — HK team cần training để không gián đoạn vận hành.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)"><strong>Sales &amp; Kế toán</strong> cần training quy trình tạo và quản lý company profile — gán tài khoản AR đúng cách.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal);grid-column:1/-1"><strong>Tất cả department</strong> cần training quy trình xuất hóa đơn điện tử với OFIS.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:10px"><span style="background:var(--al);color:var(--amber);font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">Kế toán &amp; Finance</span></div>
+      <div class="g2" style="gap:8px;font-size:12px;color:var(--mid)">
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)"><strong>Odoo 14 không có master data danh mục tài khoản doanh thu.</strong> Team Finance phải define rõ: số liệu nào từ Opera Back Office, số liệu nào từ Fast ERP — tránh double counting.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)"><strong>Deposit ledger (841x)</strong> phải reconcile hoàn toàn trước cutover và thống nhất với luồng payment tự động sau go-live.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber);grid-column:1/-1"><strong>Hệ thống xuất HĐ của chủ nhà</strong> sẽ phải xử lý manual tạm thời nếu đối tác chưa kịp tích hợp lại.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:10px"><span style="background:var(--tl);color:var(--teal);font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">Dữ liệu</span></div>
+      <div class="g2" style="gap:8px;font-size:12px;color:var(--mid)">
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)"><strong>Profile data từ Odoo thiếu nhiều field Opera cần</strong> — profile type, market segment. Opera phân 3 loại: Individual / Company / Travel Agent. Cần 3 bên <strong>Sales · Finance · Tech</strong> thống nhất — đây là master data toàn hệ thống.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)"><strong>Booking history Odoo khác Opera</strong> — cần migration để xử lý past stay history. Quan trọng cho Loyalty Engine tính tier chính xác.</div>
+        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal);grid-column:1/-1"><strong>Báo cáo Looker Studio</strong> đang dùng Odoo làm data source — cần rebuild data warehouse từ Opera + Fast ERP. Cần đánh giá latency → giao Engineering xử lý.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="margin-bottom:10px"><span style="background:var(--cl);color:var(--coral);font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">Rủi ro cao nhất</span></div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--mid)">
+        <div style="padding:8px 10px;background:var(--cl);border-radius:6px;border-left:3px solid var(--coral)">Parallel run quá ngắn — tối thiểu 2 tuần, lý tưởng 1 tháng</div>
+        <div style="padding:8px 10px;background:var(--cl);border-radius:6px;border-left:3px solid var(--coral)"><strong>Cutover ngày cao điểm</strong> — chọn occupancy thấp nhất, tránh cuối tuần và lễ. Cần kịch bản go-live chi tiết từng chi nhánh với Oracle Partner.</div>
+        <div style="padding:8px 10px;background:var(--cl);border-radius:6px;border-left:3px solid var(--coral)"><strong>Hệ thống vệ tinh chưa sẵn sàng</strong> → các team phải manual trong giai đoạn chuyển tiếp — cần danh sách manual tasks và assign owner rõ ràng.</div>
+        <div style="padding:8px 10px;background:var(--cl);border-radius:6px;border-left:3px solid var(--coral)">Future reservations bị miss trong migration — khách đến không có booking</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <!-- Architecture diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;overflow-x:auto">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">Mô hình tương tác — Channel Manager là hub trung tâm</div>
-    <svg width="72%" viewBox="0 0 680 500" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
+<div class="pg" id="pg-checklist">
+  <div class="pt"><h2>Checklist trước go-live</h2><span class="ps">Bấm để tick</span></div>
+  <div class="pr"><div class="pt2"><div class="pf" id="pf" style="width:0%"></div></div><div class="pl2" id="plbl">0%</div></div>
+  <div id="ck-root"></div>
+</div>
+
+<div class="pg" id="pg-risk">
+  <div class="pt"><h2>Rủi ro &amp; Cân nhắc</h2><span class="ps">8 điểm cần theo dõi</span></div>
+  <table class="rt">
+    <thead><tr><th style="width:210px">Vấn đề</th><th style="width:68px">Mức</th><th>Hướng xử lý</th><th style="width:96px">Thời điểm</th></tr></thead>
+    <tbody>
+      <tr><td><strong>VNPAY / OCB không phải Oracle OPI certified</strong></td><td><span class="rb rh">Cao</span></td><td>Xác nhận ngay tuần 1 với Oracle Partner. Nếu không certified → Payment Service MV nhận webhook ngoài, post vào Opera qua OHIP. Dự phòng: Adyen, Worldpay, Oracle Payment Cloud Service.</td><td>Tuần 1–2</td></tr>
+      <tr><td><strong>Master data lớn — tốn thời gian setup trước migration</strong></td><td><span class="rb rh">Cao</span></td><td>Bắt đầu từ Phase 0. Ưu tiên: 3 profile type (Individual / Company / Travel Agent), rate code, market code, AR code. Yêu cầu 3 bên Sales · Finance · Tech ngồi define trước khi Oracle Partner config.</td><td>Phase 0</td></tr>
+      <tr><td><strong>Lựa chọn phương án triển khai</strong></td><td><span class="rb rh">Cao</span></td><td><strong>Chi nhánh mới:</strong> setup nhanh, không migration, tạo config pilot chuẩn — nhưng dedicate nhân sự riêng.<br><strong>Chi nhánh cũ:</strong> migration phức tạp, giai đoạn manual cao. Quyết định ảnh hưởng toàn bộ timeline và resource.</td><td>Phase 0</td></tr>
+      <tr><td><strong>Manual tasks trong giai đoạn vệ tinh chưa hoàn tất</strong></td><td><span class="rb rh">Cao</span></td><td>Lập danh sách manual tasks trước go-live, assign owner, define SLA. Dự báo: xuất HĐ thủ công hàng ngày · post payment tay · check reservation song song · pricing manual.</td><td>Phase 1</td></tr>
+      <tr><td><strong>Estimation và timeline cho các hệ thống vệ tinh</strong></td><td><span class="rb rh">Cao</span></td><td>Channel Manager MV, Payment Service, Loyalty Engine, Pricing Engine cần estimation rõ ràng trước khi chốt go-live date. Vệ tinh trễ → go-live trễ hoặc manual period dài hơn.</td><td>Phase 0–1</td></tr>
+      <tr><td><strong>Channel Manager MV — ưu tiên sync luồng nào trước</strong></td><td><span class="rb rm">Vừa</span></td><td>Thứ tự ưu tiên: (1) Booking real-time tất cả kênh → Opera, (2) ARI push ra Hotellink/OTA sau mỗi booking, (3) Full sync allotment định kỳ. Tránh ARI push và booking inbound đồng thời gây race condition.</td><td>G2 — Build</td></tr>
+      <tr><td><strong>Grant quyền cho chủ đầu tư</strong></td><td><span class="rb rm">Vừa</span></td><td>Define rõ quyền access trong Opera cho từng chủ đầu tư (view only / report / không direct access). Policy rõ ràng trước go-live. Xem xét export báo cáo định kỳ thay vì direct access.</td><td>Trước go-live</td></tr>
+      <tr><td><strong>OHIP Business Event miss khi server down</strong></td><td><span class="rb rm">Vừa</span></td><td>Event lưu 7 ngày → implement replay logic. Monitor WebSocket liên tục. Alert khi disconnect &gt;5 phút. Định kỳ reconcile số liệu giữa Opera và hệ thống vệ tinh.</td><td>Ongoing</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="mo" id="mo" onclick="closeMO(event)">
+  <div class="mbox">
+    <div class="mh">
+      <div><div class="mt" id="mo-title"></div><div class="ms2" id="mo-sub"></div></div>
+      <button class="mc" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="mb" id="mo-body"></div>
+  </div>
+</div>
+
+<!-- Hidden modal content -->
+<div style="display:none">
+<div id="mc-channel"><div class="ms"><div class="ms-label">Sơ đồ kiến trúc</div><div class="svg-wrap"><svg width="72%" viewBox="0 0 680 500" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">
       <defs>
         <marker id="cma" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#888780"/></marker>
         <marker id="cmat" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#1D9E75"/></marker>
@@ -994,69 +610,17 @@
       <text font-family="DM Sans,sans-serif" font-size="10" fill="#5F5E5A" x="310" y="479">Phân phối quota</text>
       <line x1="440" y1="475" x2="464" y2="475" stroke="#D85A30" stroke-width="1.5" marker-end="url(#cmar)"/>
       <text font-family="DM Sans,sans-serif" font-size="10" fill="#5F5E5A" x="470" y="479">ARI 2 chiều OTA</text>
-    </svg>
-  </div>
-
-  <!-- Sync mechanism -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Cơ chế sync 2 chiều</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--purple)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px">Định kỳ — ARI (Availability Rate Inventory)</div>
-          <div style="font-size:12px;color:var(--mid)">Opera push allotment + rate + restrictions → CM → phân phối 2 kênh. Chạy theo schedule, đảm bảo đồng bộ nền.</div>
-        </div>
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px">Real-time — Booking event</div>
-          <div style="font-size:12px;color:var(--mid)">Sau mỗi booking từ bất kỳ kênh nào → CM cập nhật pool ngay → push ARI sang Hotellink và refresh Website/App trong vòng 2 phút.</div>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">2 lớp bảo vệ overbooking</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px">Lớp 1 — Channel Manager</div>
-          <div style="font-size:12px;color:var(--mid)">Atomic check quota trước khi gọi Opera. Pool = 0 → từ chối ngay. Tránh race condition giữa 2 kênh cùng lúc.</div>
-        </div>
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--purple)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px">Lớp 2 — Opera Cloud</div>
-          <div style="font-size:12px;color:var(--mid)">Atomic lock là phán quyết cuối cùng. Dù CM bị lỗi, Opera chỉ cho phép 1 request thành công. Không bao giờ oversell.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE 3: BOOKING FLOW
-════════════════════════════════════════════ -->
-<div class="page" id="page-booking">
-  <div class="page-title">
-    <h2>Luồng tích hợp Website & App — Booking trực tiếp</h2>
-    <span class="page-title-sub">Opera Cloud là source of truth · allotment real-time · OHIP own portal = miễn phí</span>
-  </div>
-
-  <!-- 3 key cards -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--purple)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Opera — Source of truth</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Opera kiểm soát allotment theo 2 chiều: theo kênh (Direct/OTA/GDS) và theo room type. Website/App chỉ được lấy từ Direct channel quota. Không cache inventory phía client.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Real-time — Không cache</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Mỗi lần hiển thị giá và trước khi submit đặt phòng đều phải gọi Opera qua OHIP. Availability thay đổi ngay khi có booking từ bất kỳ kênh nào — website phải nhận Business Event để refresh UI.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Atomic lock — Chống oversell</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Opera xử lý từng POST /reservations tuần tự. Nếu 2 khách đặt phòng cuối cùng cùng lúc, chỉ 1 request thành công — request còn lại nhận reject "sold out". Website không tự quyết inventory.</div>
-    </div>
-  </div>
-
-  <!-- Allotment model diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;overflow-x:auto">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Mô hình allotment — Opera phân phối theo kênh × room type</div>
-    <svg width="100%" viewBox="0 0 660 280" xmlns="http://www.w3.org/2000/svg">
+    </svg></div></div>
+<div class="ms"><div class="ms-label">Vai trò</div>
+<p style="font-size:13px;color:#444441;line-height:1.7">Hub đứng giữa Opera và tất cả kênh. Opera chỉ giao tiếp với CM. CM nhận quỹ phòng từ Opera phân phối 2 kênh song song và đổ booking về Opera real-time.</p>
+<div><span class="info-tag tag-mv">MV tự build</span><span class="info-tag tag-teal">OHIP miễn phí</span></div></div>
+<div class="ms"><div class="ms-label">Cơ chế sync</div>
+<div class="two-col"><div class="ic"><strong>Định kỳ — ARI</strong>Opera push allotment+rate+restrictions vào Direct pool và OTA pool.</div>
+<div class="ic"><strong>Real-time — Booking</strong>Sau mỗi booking từ bất kỳ kênh, CM cập nhật pool và push ARI Hotellink trong 2 phút.</div></div></div>
+<div class="ms"><div class="ms-label">2 lớp bảo vệ overbooking</div>
+<div class="two-col"><div class="ic"><strong>Lớp 1 — CM</strong>Atomic check quota trước khi gọi Opera. Pool = 0 thì từ chối ngay.</div>
+<div class="ic"><strong>Lớp 2 — Opera</strong>Atomic lock là phán quyết cuối. Chỉ cho 1 request thành công.</div></div></div></div>
+<div id="mc-booking"><div class="ms"><div class="ms-label">Luồng booking kênh direct</div><div class="svg-wrap"><svg width="100%" viewBox="0 0 660 280" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="a1" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
           <polygon points="0 0, 7 3.5, 0 7" fill="#7F77DD"/>
@@ -1103,13 +667,8 @@
       <rect x="100" y="234" width="460" height="34" rx="6" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
       <text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#712B13" x="330" y="247" text-anchor="middle">Enforcement rule</text>
       <text font-family="DM Sans,sans-serif" font-size="10" fill="#993C1D" x="330" y="261" text-anchor="middle">Vượt quota → redirect sang Shared pool · hết tất cả → Stop sell tự động toàn kênh</text>
-    </svg>
-  </div>
-
-  <!-- Workflow diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;overflow-x:auto">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Workflow 8 bước — từ khách tìm phòng đến Opera push toàn kênh</div>
-    <svg width="100%" viewBox="0 0 660 560" xmlns="http://www.w3.org/2000/svg">
+    </svg></div></div>
+<div class="ms"><div class="ms-label">Sơ đồ chi tiết booking + inventory sync</div><div class="svg-wrap"><svg width="100%" viewBox="0 0 660 560" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="a2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
           <polygon points="0 0, 7 3.5, 0 7" fill="#888780"/>
@@ -1222,77 +781,20 @@
       <rect x="30" y="458" width="600" height="40" rx="7" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
       <text font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#712B13" x="330" y="473" text-anchor="middle">Overbooking protection — Opera atomic lock</text>
       <text font-family="DM Sans,sans-serif" font-size="10" fill="#993C1D" x="330" y="489" text-anchor="middle">2 request cùng lúc: 1 thành công → confirmNo · 1 reject → sold out · Website không tự kiểm tra inventory</text>
-    </svg>
-  </div>
-
-  <!-- Key notes -->
-  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">OHIP API endpoints cần dùng</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;align-items:flex-start;line-height:1.5">
-          <span style="font-family:var(--font-mono);font-size:10px;background:var(--teal-light);color:var(--teal);padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">GET</span>
-          <span>/par/v1/hotels/{id}/availability — lấy rate, rooms, restrictions real-time</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;align-items:flex-start;line-height:1.5">
-          <span style="font-family:var(--font-mono);font-size:10px;background:#E6F1FB;color:#0C447C;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">POST</span>
-          <span>/rsv/v1/hotels/{id}/reservations — tạo reservation ngay trong Opera</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;align-items:flex-start;line-height:1.5">
-          <span style="font-family:var(--font-mono);font-size:10px;background:#E6F1FB;color:#0C447C;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">PUT</span>
-          <span>/rsv/v1/hotels/{id}/reservations/{id} — modify reservation</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;align-items:flex-start;line-height:1.5">
-          <span style="font-family:var(--font-mono);font-size:10px;background:#FCEBEB;color:#791F1F;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">DEL</span>
-          <span>/rsv/v1/hotels/{id}/reservations/{id} — cancel reservation</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;align-items:flex-start;line-height:1.5">
-          <span style="font-family:var(--font-mono);font-size:10px;background:#EEEDFE;color:#3C3489;padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:1px">WSS</span>
-          <span>Business Events: INVENTORY_UPDATED · RATE_PLAN_UPDATED · RESERVATION_CREATED · RESERVATION_CANCELLED</span>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Yêu cầu kỹ thuật quan trọng</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">01</span>Dùng Own OHIP Developer Portal → toàn bộ API call miễn phí</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">02</span>Không cache inventory phía client — gọi Opera mỗi lần hiển thị và trước khi submit</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">03</span>Subscribe WebSocket Business Events để refresh UI khi inventory thay đổi từ kênh khác</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">04</span>Cần đăng ký OPN Membership (Level 0, free) để lên production environment</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">05</span>Search profile (GET /profiles?email=...) trước khi tạo mới → tránh duplicate guest profile</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE 4: PAYMENT FLOW
-════════════════════════════════════════════ -->
-<div class="page" id="page-payment">
-  <div class="page-title">
-    <h2>Luồng thanh toán & hạch toán tự động</h2>
-    <span class="page-title-sub">2 kênh song song · Webhook Adapter · Fast ERP tự động</span>
-  </div>
-
-  <!-- Description cards -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kênh 1 — VNPAY</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Khách thanh toán qua QR hoặc thẻ nội địa. VNPAY fire webhook về Payment Adapter ngay khi xác nhận thành công. Tiền settle về OCB.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kênh 2 — OCB trực tiếp</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Khách chuyển khoản thẳng vào TK OCB. OCB notify Payment Adapter. Phù hợp cho corporate account hoặc thanh toán trước.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid #534AB7">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Mã bill — key đồng bộ</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Mã bill phải được chuẩn hóa và nhúng vào nội dung thanh toán. Đây là key để Adapter map đúng reservation trong Opera và FAST match giao dịch OCB.</div>
-    </div>
-  </div>
-
-  <!-- Main diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:28px;overflow-x:auto">
-    <svg width="100%" viewBox="0 0 680 880" role="img">
+    </svg></div></div>
+<div class="ms"><div class="ms-label">OHIP API endpoints</div>
+<div class="code-block">GET  /par/v1/hotels/{id}/availability
+POST /rsv/v1/hotels/{id}/reservations
+PUT  /rsv/v1/hotels/{id}/reservations/{id}
+DEL  /rsv/v1/hotels/{id}/reservations/{id}
+WSS  INVENTORY_UPDATED · RATE_PLAN_UPDATED · RESERVATION_CREATED</div></div></div>
+<div id="mc-hotellink"><div class="ms"><div class="ms-label">Vai trò</div>
+<p style="font-size:13px;color:#444441;line-height:1.7">Cầu nối giữa Channel Manager MV và các OTA. CM đẩy OTA quota sang Hotellink. Booking từ OTA được Hotellink forward về CM trong dưới 2 phút.</p></div>
+<div class="ms"><div class="ms-label">Luồng 2 chiều</div>
+<div class="fs"><div class="fn" style="background:#FAEEDA;color:#633806">→</div><div><div class="ft">CM đẩy ARI Push (availability, rate, restrictions) định kỳ và real-time sau mỗi booking</div></div></div>
+<div class="fs"><div class="fn" style="background:#FAEEDA;color:#633806">←</div><div><div class="ft">OTA booking được forward về CM trong dưới 2 phút</div></div></div></div>
+<div class="warn-box">Cần xác nhận với Oracle Partner trong G1: VNPAY có Oracle OPI certified không?</div></div>
+<div id="mc-payment"><div class="ms"><div class="ms-label">Sơ đồ luồng thanh toán đầy đủ</div><div class="svg-wrap"><svg width="100%" viewBox="0 0 680 880" role="img">
       <title>Luồng thanh toán 2 kênh + webhook Opera + hạch toán Fast ERP</title>
       <desc>2 luồng VNPAY và OCB song song, Adapter check status booking post deposit hoặc payment, Fast ERP match mã bill hạch toán tự động</desc>
       <defs>
@@ -1450,213 +952,31 @@
 
       <!-- Footer -->
       <text font-family="DM Sans,sans-serif" font-size="11" fill="#888780" x="340" y="858" text-anchor="middle">Mã bill = key đồng bộ Opera · Adapter · Fast ERP · cần chuẩn hóa từ đầu</text>
-    </svg>
-  </div>
-
-  <!-- Key notes -->
-  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Logic post vào Opera</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="font-size:13px;color:var(--mid);line-height:1.5;padding:8px 12px;background:var(--purple-light);border-radius:6px;border-left:3px solid var(--purple)"><strong style="color:var(--purple)">Booking Confirmed</strong> → POST /deposits<br><span style="font-size:12px;color:#534AB7">Ghi nhận tiền đặt cọc trước check-in</span></div>
-        <div style="font-size:13px;color:var(--mid);line-height:1.5;padding:8px 12px;background:var(--teal-light);border-radius:6px;border-left:3px solid var(--teal)"><strong style="color:var(--teal)">Booking Checked-in</strong> → POST /payment<br><span style="font-size:12px;color:#1D9E75">Ghi nhận thanh toán trong kỳ lưu trú</span></div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Yêu cầu kỹ thuật bắt buộc</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">01</span>Mã bill phải nhúng vào nội dung thanh toán khi sinh Pay By Link</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">02</span>Idempotency key — tránh post payment 2 lần cùng 1 giao dịch</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">03</span>FAST Scheduler chạy sau giờ cao điểm · tránh trùng với Night Audit Opera</div>
-        <div style="font-size:13px;color:var(--mid);display:flex;gap:8px;line-height:1.5"><span style="color:var(--teal);font-weight:500;flex-shrink:0">04</span>Alert kế toán khi mã bill không match — không để tồn đọng quá 24h</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE: BACK OFFICE EXPORT
-════════════════════════════════════════════ -->
-<div class="page" id="page-backoffice">
-  <div class="page-title">
-    <h2>Back Office Export — Opera → Fast ERP</h2>
-    <span class="page-title-sub">Luồng bổ sung · xử lý doanh thu cuối ngày · B81328 đã có trong gói</span>
-  </div>
-
-  <!-- 2 key cards -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Vai trò</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Bổ sung cho luồng OCB API — xử lý <strong>doanh thu</strong> (revenue recognition) cuối ngày. OCB API xử lý <strong>thanh toán</strong> (cash receipt) real-time. Cần cả 2 để sổ sách đầy đủ.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--amber)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Cần xác nhận với Fast ERP</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Fast Scheduler đọc được file XML/CSV từ SFTP không? Format Opera Back Office có map thẳng vào chart of accounts Fast không, hay cần transform layer?</div>
-    </div>
-  </div>
-
-  <!-- Flow diagram — dạng bước dọc tránh overlap -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">Luồng 5 bước — Night Audit → Fast ERP → Kế toán</div>
-
-    <!-- Step 1 -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)">
-      <div style="width:26px;height:26px;border-radius:50%;background:#EEEDFE;color:#3C3489;font-family:var(--font-mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600;color:#3C3489">Night Audit Opera</span>
-          <span style="font-family:var(--font-mono);font-size:10px;background:#EEEDFE;color:#3C3489;padding:2px 7px;border-radius:4px">Opera Cloud</span>
-          <span style="font-size:11px;color:var(--gray)">23:00–01:00</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Tổng kết toàn bộ giao dịch trong ngày · đóng ngày kế toán · trigger Back Office module</div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 0 6px 38px">
-      <div style="width:1.5px;height:20px;background:#AFA9EC"></div>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--gray)">trigger</span>
-    </div>
-
-    <!-- Step 2 -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)">
-      <div style="width:26px;height:26px;border-radius:50%;background:#E1F5EE;color:#085041;font-family:var(--font-mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600;color:#085041">Back Office tổng hợp dữ liệu</span>
-          <span style="font-family:var(--font-mono);font-size:10px;background:#E1F5EE;color:#085041;padding:2px 7px;border-radius:4px">B81328</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Kéo 3 nguồn từ Opera: <strong>Daily Revenue</strong> (doanh thu theo revenue center) · <strong>Folio Transactions</strong> (chi tiết giao dịch) · <strong>AR Ledger</strong> (công nợ). Map sang tài khoản kế toán · format ra file</div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 0 6px 38px">
-      <div style="width:1.5px;height:20px;background:#5DCAA5"></div>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--gray)">export file</span>
-    </div>
-
-    <!-- Step 3 -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)">
-      <div style="width:26px;height:26px;border-radius:50%;background:#F1EFE8;color:#5F5E5A;font-family:var(--font-mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600;color:#444441">File export lên SFTP / folder chia sẻ</span>
-          <span style="font-family:var(--font-mono);font-size:10px;background:#F1EFE8;color:#5F5E5A;padding:2px 7px;border-radius:4px">XML · CSV</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Đặt tại vị trí Fast ERP có thể đọc được. Tên file theo ngày: <span style="font-family:var(--font-mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">opera_revenue_YYYYMMDD.xml</span></div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 0 6px 38px">
-      <div style="width:1.5px;height:20px;background:#FAC775"></div>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--gray)">Fast Scheduler đọc file theo lịch sáng sớm</span>
-    </div>
-
-    <!-- Step 4 -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:.5px solid var(--border)">
-      <div style="width:26px;height:26px;border-radius:50%;background:#FAEEDA;color:#633806;font-family:var(--font-mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600;color:#633806">Fast Scheduler xử lý · transform nếu cần</span>
-          <span style="font-family:var(--font-mono);font-size:10px;background:#FAEEDA;color:#633806;padding:2px 7px;border-radius:4px">Fast ERP</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Validate format → nếu map được thẳng thì import trực tiếp · nếu cần transform thì qua adapter convert format trước → import vào Fast</div>
-        <div style="background:#FAEEDA;border-left:3px solid #EF9F27;border-radius:0 6px 6px 0;padding:8px 12px;margin-top:8px;font-size:12px;color:#633806">⚠ Cần xác nhận với Fast ERP: format Oracle Back Office có map thẳng vào chart of accounts không? Nếu không → Mvillage build thêm adapter nhỏ</div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 0 6px 38px">
-      <div style="width:1.5px;height:20px;background:#EF9F27"></div>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--gray)">tạo chứng từ</span>
-    </div>
-
-    <!-- Step 5 -->
-    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0">
-      <div style="width:26px;height:26px;border-radius:50%;background:#FAEEDA;color:#633806;font-family:var(--font-mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600;color:#633806">Tạo chứng từ doanh thu · kế toán xác nhận</span>
-          <span style="font-family:var(--font-mono);font-size:10px;background:#FAEEDA;color:#633806;padding:2px 7px;border-radius:4px">Nợ 131 / Có 511</span>
-        </div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.6">Hạch toán doanh thu theo ngày · phân loại phòng / F&B / dịch vụ. Kế toán review và xác nhận cuối cùng</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Compare 2 luồng -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:#E1F5EE;border:1px solid #1D9E75;border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:#085041;margin-bottom:8px">Luồng chính — OCB API</div>
-      <div style="font-size:12px;color:#0F6E56;line-height:1.7">
-        <span style="font-family:var(--font-mono);font-size:10px;background:#085041;color:#fff;padding:2px 6px;border-radius:3px">Nợ 113 / Có 1125</span><br><br>
-        Xử lý <strong>thanh toán</strong> · cash receipt<br>
-        Real-time khi tiền vào OCB<br>
-        Match mã bill → booking cụ thể
-      </div>
-    </div>
-    <div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:#633806;margin-bottom:8px">Luồng bổ sung — Back Office Export</div>
-      <div style="font-size:12px;color:#854F0B;line-height:1.7">
-        <span style="font-family:var(--font-mono);font-size:10px;background:#633806;color:#fff;padding:2px 6px;border-radius:3px">Nợ 131 / Có 511</span><br><br>
-        Xử lý <strong>doanh thu</strong> · revenue recognition<br>
-        Batch cuối ngày sau Night Audit<br>
-        Đối chiếu tổng · báo cáo kế toán
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE: LOYALTY
-════════════════════════════════════════════ -->
-<div class="page" id="page-loyalty">
-  <div class="page-title">
-    <h2>Loyalty Engine — Mvillage tự build</h2>
-    <span class="page-title-sub">Opera lưu membership card + tier · Mvillage Engine tính toán · OR logic</span>
-  </div>
-
-  <!-- Architecture decision cards -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--purple)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Opera Cloud</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Lưu membership card number và tier để FO thấy khi check-in. Fire Business Event sau checkout. <strong>Không tính điểm.</strong></div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Mvillage Loyalty Engine</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Toàn bộ logic tính toán: OR condition, market code check, tier upgrade, stay history. Kết nối Opera qua OHIP own portal — <strong>miễn phí.</strong></div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--amber)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Loyalty DB</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Source of truth cho điểm và tier. Opera chỉ là nơi hiển thị — không phải nơi lưu trữ chính. Độc lập với PMS vendor.</div>
-    </div>
-  </div>
-
-  <!-- Tier model -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">4 tier — OR logic (booking hoặc đêm ở)</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-      <div style="background:#FAECE7;border:1px solid #F0997B;border-radius:8px;padding:14px;text-align:center">
-        <div style="font-size:14px;font-weight:600;color:#712B13;margin-bottom:6px">Mới</div>
-        <div style="font-size:12px;color:#993C1D;line-height:1.6">Ngay khi đăng ký<br>0 booking · 0 đêm</div>
-      </div>
-      <div style="background:#F1EFE8;border:1px solid #D3D1C7;border-radius:8px;padding:14px;text-align:center">
-        <div style="font-size:14px;font-weight:600;color:#444441;margin-bottom:6px">Bạc</div>
-        <div style="font-size:12px;color:#5F5E5A;line-height:1.6">≥ 2 booking<br><strong>hoặc</strong> ≥ 4 đêm</div>
-      </div>
-      <div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:8px;padding:14px;text-align:center">
-        <div style="font-size:14px;font-weight:600;color:#633806;margin-bottom:6px">Vàng</div>
-        <div style="font-size:12px;color:#854F0B;line-height:1.6">≥ 4 booking<br><strong>hoặc</strong> ≥ 10 đêm</div>
-      </div>
-      <div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:8px;padding:14px;text-align:center">
-        <div style="font-size:14px;font-weight:600;color:#3C3489;margin-bottom:6px">Bạch kim</div>
-        <div style="font-size:12px;color:#534AB7;line-height:1.6">≥ 10 booking<br><strong>hoặc</strong> ≥ 31 đêm</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Flow diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;overflow-x:auto">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Luồng tổng quan — Signup và tích lũy sau checkout</div>
-    <svg width="100%" viewBox="0 0 680 820" xmlns="http://www.w3.org/2000/svg">
+    </svg></div></div>
+<div class="ms"><div class="ms-label">2 kênh song song</div>
+<div class="two-col"><div class="ic"><strong>VNPAY</strong>Webhook notify → Payment Service nhận → validate → xử lý.</div>
+<div class="ic"><strong>OCB Bank</strong>Notify trực tiếp → Payment Service và Fast ERP xử lý song song.</div></div></div>
+<div class="ms"><div class="ms-label">Logic post vào Opera</div>
+<div class="fs"><div class="fn" style="background:#E1F5EE;color:#085041">1</div><div><div class="ft">Booking Confirmed → POST /deposits vào Opera folio</div></div></div>
+<div class="fs"><div class="fn" style="background:#E1F5EE;color:#085041">2</div><div><div class="ft">Booking Checked-in → POST /payment vào Opera folio</div></div></div>
+<div class="warn-box">Idempotency key bắt buộc để tránh double-post. Mã bill = key đồng bộ Opera + Adapter + Fast ERP.</div></div></div>
+<div id="mc-backoffice"><div class="ms"><div class="ms-label">2 luồng kế toán song song</div>
+<div class="two-col"><div class="ic"><strong>Luồng chính — OCB API</strong>Thanh toán · cash receipt · Nợ 113/Có 1125 · real-time match mã bill.</div>
+<div class="ic"><strong>Luồng bổ sung — Back Office</strong>Doanh thu · Nợ 131/Có 511 · batch cuối ngày sau Night Audit.</div></div></div>
+<div class="ms"><div class="ms-label">Back Office Export 5 bước</div>
+<div class="fs"><div class="fn" style="background:#EEEDFE;color:#3C3489">1</div><div><div class="ft">Night Audit Opera 23:00–01:00 → đóng ngày → trigger Back Office</div></div></div>
+<div class="fs"><div class="fn" style="background:#E1F5EE;color:#085041">2</div><div><div class="ft">Back Office tổng hợp Daily Revenue + Folio Transactions + AR Ledger</div></div></div>
+<div class="fs"><div class="fn" style="background:#F1EFE8;color:#5F5E5A">3</div><div><div class="ft">Export file XML/CSV lên SFTP/folder chia sẻ</div></div></div>
+<div class="fs"><div class="fn" style="background:#FAEEDA;color:#633806">4</div><div><div class="ft">Fast Scheduler đọc file → validate → transform nếu cần → import</div></div></div>
+<div class="fs"><div class="fn" style="background:#FAEEDA;color:#633806">5</div><div><div class="ft">Tạo chứng từ Nợ 131/Có 511 → kế toán xác nhận</div></div></div>
+<div class="warn-box">Cần xác nhận với Fast ERP: format Oracle Back Office XML/CSV có map thẳng vào chart of accounts không?</div></div></div>
+<div id="mc-invoice"><div class="ms"><div class="ms-label">Luồng xuất hóa đơn điện tử</div>
+<div class="fs"><div class="fn" style="background:#EEEDFE;color:#3C3489">1</div><div><div class="ft">Khách check-out → Opera fire RESERVATION_CHECKED_OUT event</div></div></div>
+<div class="fs"><div class="fn" style="background:#F1EFE8;color:#5F5E5A">2</div><div><div class="ft">OFIS subscribe event → GET /folios → lấy chi tiết folio</div></div></div>
+<div class="fs"><div class="fn" style="background:#F1EFE8;color:#5F5E5A">3</div><div><div class="ft">Map MST khách/công ty → tính VAT 8% → ký số</div></div></div>
+<div class="fs"><div class="fn" style="background:#F1EFE8;color:#5F5E5A">4</div><div><div class="ft">Phát hành HĐĐT → gửi email khách → ghi số HĐ ngược vào Opera</div></div></div>
+<div class="fs"><div class="fn" style="background:#FAEEDA;color:#633806">5</div><div><div class="ft">Invoice MV nhận → đẩy sang Fast ERP để hạch toán</div></div></div></div></div>
+<div id="mc-loyalty"><div class="ms"><div class="ms-label">Sơ đồ Loyalty Engine</div><div class="svg-wrap"><svg width="100%" viewBox="0 0 680 820" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="la" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#888780"/></marker>
         <marker id="lt" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#1D9E75"/></marker>
@@ -1830,72 +1150,16 @@
       <!-- footer -->
       <rect x="14" y="794" width="652" height="20" rx="5" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="0.5"/>
       <text font-family="DM Sans,sans-serif" font-size="10" fill="#085041" x="340" y="807" text-anchor="middle">Tích lũy chỉ sau Checked Out · market code phải eligible · PROFILE_MERGED phải xử lý để tránh mất dữ liệu</text>
-    </svg>
-  </div>
-
-  <!-- Market code table + Setup notes -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Market code — điều kiện tích lũy</div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr>
-          <th style="text-align:left;padding:6px 8px;border-bottom:.5px solid var(--border);background:var(--bg);font-size:11px;color:var(--gray)">Market code</th>
-          <th style="text-align:left;padding:6px 8px;border-bottom:.5px solid var(--border);background:var(--bg);font-size:11px;color:var(--gray)">Nguồn</th>
-          <th style="padding:6px 8px;border-bottom:.5px solid var(--border);background:var(--bg);font-size:11px;color:var(--gray)">Tích lũy</th>
-        </tr></thead>
-        <tbody>
-          <tr><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">DIRECT_WEB</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">Website Mvillage</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 7px;border-radius:4px">✓ Được</span></td></tr>
-          <tr style="background:var(--bg)"><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">DIRECT_APP</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">App Mvillage</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 7px;border-radius:4px">✓ Được</span></td></tr>
-          <tr><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">WALKIN</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">Walk-in tại quầy</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 7px;border-radius:4px">✓ Được</span></td></tr>
-          <tr style="background:var(--bg)"><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">OTA_BDC</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">Booking.com</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#FAEEDA;color:#633806;font-size:10px;padding:2px 7px;border-radius:4px">⚠ Tùy policy</span></td></tr>
-          <tr><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">OTA_AGODA</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">Agoda</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#FAEEDA;color:#633806;font-size:10px;padding:2px 7px;border-radius:4px">⚠ Tùy policy</span></td></tr>
-          <tr style="background:var(--bg)"><td style="padding:7px 8px;border-bottom:.5px solid var(--border);font-family:var(--font-mono);font-size:11px">CORP</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border)">Corporate</td><td style="padding:7px 8px;border-bottom:.5px solid var(--border);text-align:center"><span style="background:#FAECE7;color:#712B13;font-size:10px;padding:2px 7px;border-radius:4px">✗ Không</span></td></tr>
-          <tr><td style="padding:7px 8px;font-family:var(--font-mono);font-size:11px">COMP</td><td style="padding:7px 8px">Complimentary</td><td style="padding:7px 8px;text-align:center"><span style="background:#FAECE7;color:#712B13;font-size:10px;padding:2px 7px;border-radius:4px">✗ Không</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Setup bắt buộc trong Opera (G1)</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">01</span>Tạo Membership Type <span style="font-family:var(--font-mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">MVILLAGE_LOYALTY</span> với flag <span style="font-family:var(--font-mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">externalPointsAndRedemptionDatabase = true</span></div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">02</span>Bật Guest Profile Match OPERA Control — tránh tạo profile trùng tự động</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">03</span>Cấu hình đúng market code cho từng nguồn booking khi tạo reservation</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">04</span>Cấp role <span style="font-family:var(--font-mono);font-size:11px;background:var(--bg);padding:1px 5px;border-radius:3px">PROFILE_READ · PROFILE_WRITE · MEMBERSHIP_READ · MEMBERSHIP_WRITE</span> cho integration user</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--amber);font-weight:600;flex-shrink:0">⚠</span>Define danh sách market code eligible trước go-live — confirm với Revenue Manager</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE: PRICING ENGINE
-════════════════════════════════════════════ -->
-<div class="page" id="page-pricing">
-  <div class="page-title">
-    <h2>Dynamic Pricing Engine — Mvillage tự build</h2>
-    <span class="page-title-sub">Revenue Manager vận hành · Opera là source of truth · OHIP own portal miễn phí</span>
-  </div>
-
-  <!-- Why self-build -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kiểm soát hoàn toàn</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Rule engine minh bạch — RM hiểu rõ tại sao giá thay đổi. Debug ngay khi sai. Thay đổi rule không cần raise ticket với vendor.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Dữ liệu độc quyền</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">Tích hợp loyalty tier, App booking pattern, CRM data — những thứ vendor RMS không có. Đây là lợi thế cạnh tranh thực sự.</div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--amber)">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Không tốn phí vendor</div>
-      <div style="font-size:13px;color:var(--mid);line-height:1.6">IDeaS/Duetto charge $300–800/tháng/property. Với quy mô 3,000 rooms, tự build là khoản tiết kiệm lớn. Mở rộng branch không cần thêm license.</div>
-    </div>
-  </div>
-
-  <!-- Flow diagram -->
-  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;overflow-x:auto">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Luồng tổng quan — Opera ↔ Pricing Engine ↔ tất cả kênh</div>
-    <svg width="100%" viewBox="0 0 680 660" xmlns="http://www.w3.org/2000/svg">
+    </svg></div></div>
+<div class="ms"><div class="ms-label">4 Tier — OR logic</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+<div style="background:#FAECE7;border:1px solid #F0997B;border-radius:6px;padding:10px;text-align:center"><div style="font-weight:700;color:#712B13">Mới</div><div style="font-size:11px;color:#993C1D;margin-top:3px">Khi đăng ký</div></div>
+<div style="background:#F1EFE8;border:1px solid #D3D1C7;border-radius:6px;padding:10px;text-align:center"><div style="font-weight:700;color:#444441">Bạc</div><div style="font-size:11px;color:#5F5E5A;margin-top:3px">2 bkg hoặc 4 đêm</div></div>
+<div style="background:#FAEEDA;border:1px solid #FAC775;border-radius:6px;padding:10px;text-align:center"><div style="font-weight:700;color:#633806">Vàng</div><div style="font-size:11px;color:#854F0B;margin-top:3px">4 bkg hoặc 10 đêm</div></div>
+<div style="background:#EEEDFE;border:1px solid #AFA9EC;border-radius:6px;padding:10px;text-align:center"><div style="font-weight:700;color:#3C3489">Bạch kim</div><div style="font-size:11px;color:#534AB7;margin-top:3px">10 bkg hoặc 31 đêm</div></div>
+</div></div>
+<div class="warn-box">PROFILE_MERGED event phải xử lý — merge 2 loyalty records tránh mất dữ liệu tích lũy.</div></div>
+<div id="mc-pricing"><div class="ms"><div class="ms-label">Sơ đồ Pricing Engine</div><div class="svg-wrap"><svg width="100%" viewBox="0 0 680 660" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="pa" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#888780"/></marker>
         <marker id="pt" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#1D9E75"/></marker>
@@ -2030,464 +1294,142 @@
       <!-- Footer rate code -->
       <rect x="10" y="636" width="658" height="13" rx="3" fill="#F1EFE8" opacity="0.7"/>
       <text font-family="DM Mono,monospace" font-size="9" fill="#5F5E5A" x="339" y="645" text-anchor="middle">Pricing Engine chỉ điều chỉnh BAR — các rate còn lại tự derive trong Opera</text>
-    </svg>
-  </div>
-
-  <!-- Bottom 2 cards -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">3 thứ cần build</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:3px">Data pipeline</div>
-          <div style="font-size:12px;color:var(--mid)">Job pull dữ liệu từ Opera về Pricing DB — occupancy, pick-up, tồn phòng, revenue</div>
-        </div>
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:3px">Rule engine</div>
-          <div style="font-size:12px;color:var(--mid)">Bảng rule do RM tự định nghĩa — ngưỡng occ, % tăng/giảm, ngày đặc biệt, min/max price</div>
-        </div>
-        <div style="padding:10px 12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--purple)">
-          <div style="font-size:13px;font-weight:500;color:var(--dark);margin-bottom:3px">RM Dashboard</div>
-          <div style="font-size:12px;color:var(--mid)">Xem đề xuất rate · chỉnh sửa · bấm Duyệt → tự động ghi vào Opera</div>
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Điểm cần lưu ý kỹ thuật</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">01</span>Room type code và rate code trong Pricing Engine phải khớp chính xác với Opera — sai 1 ký tự là Opera reject toàn batch</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">02</span>Pricing Engine chỉ PUT BAR — Opera tự derive các rate còn lại theo công thức đã cấu hình sẵn</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">03</span>Tránh ghi rate trong giờ Night Audit Opera — thường 23:00–01:00</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--teal);font-weight:600;flex-shrink:0">04</span>Own OHIP Developer Portal → miễn phí toàn bộ API call · không tốn thêm phí Oracle</div>
-        <div style="font-size:12px;color:var(--mid);display:flex;gap:8px;line-height:1.5;align-items:flex-start"><span style="color:var(--amber);font-weight:600;flex-shrink:0">→</span>Roadmap sau: tích hợp ML model trên historical data Mvillage để dự báo demand tự động</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE: IMPLEMENTATION SUMMARY
-════════════════════════════════════════════ -->
-<div class="page" id="page-implementation">
-  <div class="page-title">
-    <h2>Đúc kết triển khai Opera Cloud</h2>
-    <span class="page-title-sub">Data migration · Lộ trình chi nhánh · Ảnh hưởng chuyển đổi từ Odoo</span>
-  </div>
-
-  <!-- ── SECTION 1: DATA MIGRATION ── -->
-  <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:8px">Dữ liệu cần migrate sang Opera <span style="flex:1;height:.5px;background:var(--border);display:block"></span></div>
-
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--purple)">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px">Guest & Company Profiles</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div>Họ tên · email · SĐT · địa chỉ · quốc tịch · CMND/Passport</div>
-        <div>Booking history (past stays) → Stay Records import</div>
-        <div>Loyalty membership card nếu có</div>
-        <div>Preferences · VIP level · special requests</div>
-        <div>Company profile: MST · địa chỉ xuất HĐ · contact person</div>
-        <div>Negotiated rates đã ký với từng công ty</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--teal)">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px">Reservations & Rates</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div>Future reservations đã confirmed — <strong>quan trọng nhất</strong></div>
-        <div>Deposit đã nhận cho future reservations</div>
-        <div>Group blocks đang active</div>
-        <div>Rate codes: BAR · BAR_BB · NRF · PKG · Corporate · Group</div>
-        <div>Rate restrictions theo mùa/ngày lễ</div>
-        <div>Room type · room number · floor · features · occupancy</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;border-top:3px solid var(--amber)">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px">Accounting Setup</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div>Transaction codes mapping với chart of accounts Fast ERP</div>
-        <div>Deposit ledger balance tại thời điểm cutover</div>
-        <div>AR balance nếu có công nợ chuyển sang</div>
-        <div>Market code list đầy đủ cho tất cả nguồn booking</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="background:#FAEEDA;border-left:3px solid #EF9F27;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#633806;line-height:1.6;margin-bottom:24px">
-    <strong>Lưu ý:</strong> Odoo không phải PMS nên data structure khác Opera hoàn toàn — cần build transform script riêng để convert, không import thẳng được. Profile data từ Odoo sẽ thiếu nhiều field Opera cần, đặc biệt nationality, ID number, profile type.
-  </div>
-
-  <!-- ── SECTION 2: BRANCH ROLLOUT ── -->
-  <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:8px">Lộ trình triển khai cho các chi nhánh <span style="flex:1;height:.5px;background:var(--border);display:block"></span></div>
-
-  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
-    <div style="display:flex;gap:12px;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--gray)">
-      <div style="min-width:90px;font-family:var(--font-mono);font-size:11px;color:var(--gray);font-weight:600;padding-top:2px">Phase 0<br>T-6 tháng</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:6px">Chuẩn bị chung</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.7">Hoàn thiện kiến trúc tích hợp với Oracle Partner · Build và test Channel Manager MV, Payment Adapter, Loyalty Engine trên OHIP sandbox · Chuẩn hóa data template dùng chung cho tất cả branch (room type code, rate code, market code) · Chọn branch pilot: quy mô trung bình, team FO ổn định</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--purple)">
-      <div style="min-width:90px;font-family:var(--font-mono);font-size:11px;color:var(--purple);font-weight:600;padding-top:2px">Phase 1<br>T-3 → T0</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:6px">Pilot branch</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.7">Cấu hình Opera đầy đủ cho branch pilot · Data migration: profile, reservations, rates · Training toàn bộ FO, HK, Accounting · <strong>Parallel run 2 tuần</strong>: chạy song song Odoo và Opera trước khi cutover · Cutover: chọn ngày thấp điểm, thứ Hai đầu tháng, occupancy thấp nhất · Hypercare 30 ngày Oracle Partner on-site</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--teal)">
-      <div style="min-width:90px;font-family:var(--font-mono);font-size:11px;color:var(--teal);font-weight:600;padding-top:2px">Phase 2<br>+1→+2 tháng<br>mỗi branch</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:6px">Replicate sang các branch tiếp theo</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.7">Dùng config của pilot branch làm template · Chỉ customize phần khác biệt: room type, rate, local market code · Migration data riêng từng branch · Training rút ngắn vì đã có SOP từ pilot · Oracle Partner remote support, không cần on-site toàn thời gian</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:12px;padding:14px;background:var(--white);border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--amber)">
-      <div style="min-width:90px;font-family:var(--font-mono);font-size:11px;color:var(--amber);font-weight:600;padding-top:2px">Phase 3<br>Sau tất cả<br>branch live</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:6px">Stabilize toàn hệ thống</div>
-        <div style="font-size:12px;color:var(--mid);line-height:1.7">Bật P2/P3 features còn lại · Kết nối Loyalty Engine cross-branch: khách ở branch A tích lũy được nhận ở branch B · Pricing Engine mở rộng toàn chain · Review và optimize market code, rate structure toàn chain</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SECTION 3: ODOO IMPACT ── -->
-  <div style="font-family:var(--font-mono);font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:8px">Ảnh hưởng chuyển đổi từ Odoo sang Opera <span style="flex:1;height:.5px;background:var(--border);display:block"></span></div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="background:#EEEDFE;color:#534AB7;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono)">Vận hành</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)">FO mất <strong>2–4 tuần</strong> để thành thạo Opera sau training — giai đoạn này check-in/out chậm hơn, cần tăng nhân sự hoặc giảm occupancy target</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)">Night Audit là concept mới hoàn toàn — Odoo không có. FO Manager và kế toán cần được train kỹ nhất</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)">Housekeeping workflow thay đổi nếu bật Task Sheets — từ manual list sang digital. HK team cần thời gian làm quen tablet/mobile</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="background:#FAEEDA;color:#633806;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono)">Kế toán</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)">Odoo là full ERP — Opera chỉ là PMS. Revenue recognition vẫn phải qua Fast ERP. Cần define rõ số liệu nào từ Opera, số liệu nào từ Fast, tránh double counting</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--coral)">Deposit ledger (841x) phải reconcile hoàn toàn trước cutover — điểm dễ sai nhất</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)"><strong>Parallel period tối thiểu 1 tháng:</strong> báo cáo song song Odoo và Opera+Fast để đối chiếu trước khi tắt Odoo</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono)">Dữ liệu</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)">Profile data từ Odoo thiếu nhiều field Opera cần — nationality, ID number, profile type. Cần data cleansing trước khi migrate</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--amber)">Booking history format Odoo khác Opera — cần transform script riêng, không import thẳng được</div>
-        <div style="padding:8px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--teal)">Rate code hiện tại cần review và standardize theo naming convention Opera trước khi migrate</div>
-      </div>
-    </div>
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px">
-      <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <span style="background:#FAECE7;color:#712B13;font-size:10px;padding:2px 8px;border-radius:4px;font-family:var(--font-mono)">Rủi ro cao nhất</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--mid);line-height:1.6">
-        <div style="padding:8px 10px;background:#FAECE7;border-radius:6px;border-left:3px solid var(--coral)">Parallel run quá ngắn — tối thiểu 2 tuần, lý tưởng 1 tháng</div>
-        <div style="padding:8px 10px;background:#FAECE7;border-radius:6px;border-left:3px solid var(--coral)">Cutover vào ngày cao điểm — phải chọn ngày occupancy thấp nhất, tránh cuối tuần và lễ</div>
-        <div style="padding:8px 10px;background:#FAECE7;border-radius:6px;border-left:3px solid var(--coral)">FO chưa sẵn sàng — nếu training không đủ, team sẽ bypass Opera làm tay, dữ liệu sai từ đầu rất khó clean</div>
-        <div style="padding:8px 10px;background:#FAECE7;border-radius:6px;border-left:3px solid var(--coral)">Future reservations bị miss trong migration — khách đến không có booking là thảm họa</div>
-        <div style="padding:8px 10px;background:#FAECE7;border-radius:6px;border-left:3px solid var(--coral)">Báo cáo Looker Studio đang dùng Odoo làm data source — cần rebuild từ Opera + Fast ERP sau go-live</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE 4: CHECKLIST
-════════════════════════════════════════════ -->
-<div class="page" id="page-checklist">
-  <div class="page-title">
-    <h2>Checklist trước go-live</h2>
-    <span class="page-title-sub">Bấm để tick ✓</span>
-  </div>
-
-  <div class="progress-row">
-    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-    <div class="progress-label" id="progress-label">0%</div>
-  </div>
-
-  <div id="checklist-root"></div>
-</div>
-
-<!-- ═══════════════════════════════════════════
-     PAGE 5: RISK
-════════════════════════════════════════════ -->
-<div class="page" id="page-risk">
-  <div class="page-title">
-    <h2>Rủi ro & xử lý</h2>
-    <span class="page-title-sub">6 rủi ro cần theo dõi</span>
-  </div>
-
-  <table class="risk-table">
-    <thead>
-      <tr>
-        <th style="width:260px">Rủi ro</th>
-        <th style="width:80px">Mức độ</th>
-        <th>Giải pháp</th>
-        <th style="width:120px">Thời điểm check</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>VNPAY không phải Oracle OPI certified</strong></td>
-        <td><span class="risk-badge risk-high">Cao</span></td>
-        <td>Hỏi Oracle Partner ngay tuần 1 · Phương án dự phòng: Adyen, Worldpay hoặc Oracle Payment Cloud Service</td>
-        <td>Tuần 1–2</td>
-      </tr>
-      <tr>
-        <td><strong>Rate mapping sai giữa Opera và OTA</strong></td>
-        <td><span class="risk-badge risk-high">Cao</span></td>
-        <td>Map từng OTA riêng biệt · Test kỹ Booking.com trước · Không làm bulk · Kiểm tra timezone UTC+7</td>
-        <td>Tuần 7–10</td>
-      </tr>
-      <tr>
-        <td><strong>Duplicate guest profile khi sync 2 chiều</strong></td>
-        <td><span class="risk-badge risk-mid">Vừa</span></td>
-        <td>Luôn GET search trước POST tạo mới · Subscribe PROFILE_MERGED · Bật Guest Profile Match trong Opera Controls</td>
-        <td>Tuần 11–14</td>
-      </tr>
-      <tr>
-        <td><strong>Timezone mismatch gây lệch ngày đặt phòng</strong></td>
-        <td><span class="risk-badge risk-mid">Vừa</span></td>
-        <td>Hotellink phải convert đúng UTC+7 ↔ UTC · Test với booking arrival time 00:00–01:00 · Document rõ convention</td>
-        <td>Tuần 9–10</td>
-      </tr>
-      <tr>
-        <td><strong>Room type code sai khi ghi rate từ Pricing Engine</strong></td>
-        <td><span class="risk-badge risk-mid">Vừa</span></td>
-        <td>Map một lần cẩn thận · Validate trước khi push · Chạy sandbox trước production · Opera từ chối toàn batch nếu sai</td>
-        <td>Tuần 15–18</td>
-      </tr>
-      <tr>
-        <td><strong>OHIP Business Event miss khi server down</strong></td>
-        <td><span class="risk-badge risk-low">Thấp</span></td>
-        <td>Event lưu 7 ngày → implement replay logic · Monitor WebSocket connection liên tục · Alert khi disconnect &gt;5 phút</td>
-        <td>Ongoing</td>
-      </tr>
-    </tbody>
-  </table>
+    </svg></div></div>
+<div class="ms"><div class="ms-label">Rate code structure</div>
+<div class="code-block">BAR (Base rate) → BAR_BB → NRF → PKG_HB
+RM chỉ set BAR · Opera tự derive các rate còn lại</div>
+<div class="warn-box">Tránh ghi rate trong giờ Night Audit Opera: 23:00–01:00</div></div></div>
 </div>
 
 <script>
-// ── PAGE SWITCHING ──────────────────────────────────────
-function switchPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  event.target.classList.add('active');
+function switchPage(id,btn){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nt').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('pg-'+id).classList.add('active');
+  btn.classList.add('active');
 }
 
-// ── GANTT DATA ──────────────────────────────────────────
-// 6 tháng = 26 tuần — không có est, chỉ list task
-const WEEKS = 26;
+function switchDiagram(mode){
+  var a=mode==='asis';
+  document.getElementById('dia-asis').style.display=a?'block':'none';
+  document.getElementById('dia-tobe').style.display=a?'none':'block';
+  document.getElementById('stats-asis').style.display=a?'grid':'none';
+  document.getElementById('stats-tobe').style.display=a?'none':'grid';
+  document.getElementById('list-asis').style.display=a?'block':'none';
+  document.getElementById('list-tobe').style.display=a?'none':'block';
+  document.getElementById('btn-asis').style.background=a?'var(--dark)':'none';
+  document.getElementById('btn-asis').style.color=a?'#fff':'var(--gray)';
+  document.getElementById('btn-tobe').style.background=a?'none':'var(--teal)';
+  document.getElementById('btn-tobe').style.color=a?'var(--gray)':'#fff';
+}
 
-const phases = [
-  {
-    name: 'G1 — Chuẩn bị', color: '#534AB7', bg: '#EEEDFE',
-    tasks: [
-      'Trao đổi kiến trúc & giải pháp (Tech MV × Oracle Partner)',
-      'Finalize hợp đồng & xác nhận PSP',
-      'Kick-off chính thức · OHIP sandbox access',
-    ]
-  },
-  {
-    name: 'G2 — Cấu hình & tích hợp', color: '#1D9E75', bg: '#E1F5EE',
-    tasks: [
-      'Core PMS setup',
-      'OPI + Payment (EFT · Pay By Link)',
-      'Interface Key / POS / PABX',
-      'Distribution + Hotellink rate mapping',
-      'Invoice Service + E-Invoice (OFIS)',
-      'Data migration · End-to-end test',
-    ]
-  },
-  {
-    name: 'Tích hợp P1', color: '#185FA5', bg: '#E6F1FB',
-    tasks: [
-      'Website & App — OHIP booking flow',
-      'Hotellink ARI Push · reservation sync',
-      'Payment OPI · token · settlement test',
-      'Fast ERP: Payment Adapter build · mã bill chuẩn hóa',
-      'Fast ERP: OCB API kết nối · FAST gọi lấy DS giao dịch',
-      'Fast ERP: test match mã bill → tạo chứng từ tự động',
-      'Fast ERP: test post deposit (Confirmed) và payment (Checked-in) vào Opera',
-    ]
-  },
-  {
-    name: 'Tích hợp P2', color: '#854F0B', bg: '#FAEEDA',
-    tasks: [
-      'Invoice Service — event listener · HĐĐT',
-      'Profile & Loyalty — membership · tier sync',
-      'Dynamic Pricing — rule engine · RM dashboard',
-    ]
-  },
-  {
-    name: 'G3 — Training & UAT', color: '#BA7517', bg: '#FAEEDA',
-    tasks: [
-      'Training FO + HK (Oracle Partner — 15.5 man-days)',
-      'Training Finance + Revenue Manager',
-      'UAT từng bộ phận · sign-off',
-      'Cập nhật SOP · Parallel run',
-    ]
-  },
-  {
-    name: 'G4 — Go-live', color: '#993C1D', bg: '#FAECE7',
-    tasks: [
-      'Cutover · Go-live 1/2027',
-      'Hypercare 30 ngày (Oracle Partner on-site)',
-      'Rollout branch tiếp theo',
-    ]
-  },
+var modalMeta={
+  channel:{title:'Channel Manager MV',sub:'Mvillage tự build · Hub trung tâm phân phối · OHIP own portal'},
+  booking:{title:'Website / App MV',sub:'Mvillage tự build · Direct booking engine · OHIP · CMS'},
+  hotellink:{title:'Hotellink / OTA',sub:'Vendor · OTA connector · OHIP certified'},
+  payment:{title:'Payment Service MV',sub:'Mvillage tự build · VNPAY · OCB · OHIP deposit/payment'},
+  backoffice:{title:'Fast ERP — Back Office Export',sub:'Vendor · Hạch toán · B81328 đã có trong gói'},
+  invoice:{title:'Invoice Service',sub:'OFIS Oracle + Invoice MV + Fast ERP'},
+  loyalty:{title:'Loyalty Engine MV',sub:'Mvillage tự build · OR logic · LynkiD · Grab'},
+  pricing:{title:'Pricing Engine MV',sub:'Mvillage tự build · RM dashboard · Chỉ điều chỉnh BAR'}
+};
+
+function openModal(id){
+  var m=modalMeta[id]; if(!m) return;
+  document.getElementById('mo-title').textContent=m.title;
+  document.getElementById('mo-sub').textContent=m.sub;
+  var src=document.getElementById('mc-'+id);
+  document.getElementById('mo-body').innerHTML=src?src.innerHTML:'';
+  document.getElementById('mo').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('mo').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeMO(e){if(e.target===document.getElementById('mo'))closeModal();}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+var phases=[
+  {name:'G1 — Chuẩn bị',color:'#534AB7',bg:'#EEEDFE',tasks:['Trao đổi kiến trúc & giải pháp (Tech MV × Oracle Partner)','Finalize hợp đồng & xác nhận PSP','Kick-off chính thức · OHIP sandbox access']},
+  {name:'G2 — Cấu hình & tích hợp',color:'#1D9E75',bg:'#E1F5EE',tasks:['Core PMS setup','OPI + Payment (EFT · Pay By Link)','Interface Key / POS / PABX','Distribution + Hotellink rate mapping','Invoice Service + E-Invoice (OFIS)','Data migration · End-to-end test']},
+  {name:'Tích hợp P1',color:'#185FA5',bg:'#E6F1FB',tasks:['Website & App — OHIP booking flow','Channel Manager MV — allotment sync 2 chiều','Hotellink ARI Push · reservation sync','Payment Service: VNPAY + OCB webhook','Fast ERP: OCB API kết nối · match mã bill · chứng từ tự động']},
+  {name:'Tích hợp P2',color:'#854F0B',bg:'#FAEEDA',tasks:['Invoice Service — event listener · HĐDT','Profile & Loyalty — membership · tier sync','Dynamic Pricing — rule engine · RM dashboard']},
+  {name:'G3 — Training & UAT',color:'#BA7517',bg:'#FAEEDA',tasks:['Training FO + HK (Oracle Partner — 15.5 man-days)','Training Finance + Revenue Manager','UAT từng bộ phận · sign-off','Cập nhật SOP · Parallel run']},
+  {name:'G4 — Go-live',color:'#993C1D',bg:'#FAECE7',tasks:['Cutover · Go-live 1/2027','Hypercare 30 ngày (Oracle Partner on-site)','Rollout branch tiếp theo']}
 ];
 
-// Build phase list — không có bar, không có timeline est
-function buildGantt() {
-  const root = document.getElementById('gantt-root');
-  let html = '';
-  phases.forEach(ph => {
-    html += `<div style="
-      background: white;
-      border: 1px solid #D3D1C7;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    ">
-      <div style="
-        background: ${ph.bg};
-        border-left: 4px solid ${ph.color};
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      ">
-        <span style="
-          font-family: 'DM Sans', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          color: ${ph.color};
-        ">${ph.name}</span>
-      </div>`;
-    ph.tasks.forEach(task => {
-      html += `<div style="
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 11px 16px 11px 20px;
-        border-top: 1px solid #ECEAE3;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 13px;
-        color: #444441;
-        line-height: 1.4;
-      ">
-        <span style="
-          width: 6px; height: 6px;
-          border-radius: 50%;
-          background: ${ph.color};
-          flex-shrink: 0;
-          opacity: 0.5;
-        "></span>
-        ${task}
-      </div>`;
+function buildGantt(){
+  var r=document.getElementById('gantt-root'),h='';
+  phases.forEach(function(ph){
+    h+='<div style="background:white;border:1px solid #D3D1C7;border-radius:10px;overflow:hidden;margin-bottom:12px">';
+    h+='<div style="background:'+ph.bg+';border-left:4px solid '+ph.color+';padding:12px 16px">';
+    h+='<span style="font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;color:'+ph.color+'">'+ph.name+'</span></div>';
+    ph.tasks.forEach(function(t){
+      h+='<div style="display:flex;align-items:center;gap:12px;padding:10px 16px 10px 20px;border-top:1px solid #ECEAE3;font-family:DM Sans,sans-serif;font-size:13px;color:#444441">';
+      h+='<span style="width:6px;height:6px;border-radius:50%;background:'+ph.color+';flex-shrink:0;opacity:.5"></span>'+t+'</div>';
     });
-    html += `</div>`;
+    h+='</div>';
   });
-  root.innerHTML = html;
+  r.innerHTML=h;
 }
 
-// ── CHECKLIST DATA ──────────────────────────────────────
-const checkSections = [
-  {
-    title: 'Hạ tầng & kết nối',
-    items: [
-      { text: 'Opera Cloud tenant provisioned · property code · chain code', owner: 'Oracle Partner' },
-      { text: 'PSP được xác nhận Oracle OPI certified · hỏi Oracle Partner tuần 1', owner: 'Digital Product' },
-      { text: 'OHIP Developer Portal: own app registered · sandbox access', owner: 'IT' },
-      { text: 'EFT Interface live · OPI Cloud Credit Card endpoint cấu hình xong', owner: 'Oracle Partner' },
-      { text: 'Pay By Link endpoint cấu hình · Advance Deposit Handling ON', owner: 'Oracle Partner' },
-      { text: 'OFIS E-Invoice cấu hình · test xuất hóa đơn thành công', owner: 'Finance + Oracle Partner' },
-    ]
-  },
-  {
-    title: 'Tích hợp vệ tinh P1',
-    items: [
-      { text: 'Website/App: booking flow test pass · profile sync 2 chiều OK', owner: 'Digital Product' },
-      { text: 'Hotellink: rate mapping đúng tất cả OTA · ARI Push test pass', owner: 'Revenue Manager' },
-      { text: 'Hotellink: StopSell test khi phòng cuối cùng được đặt', owner: 'Digital Product' },
-      { text: 'Payment: quẹt thẻ → token test · Pay By Link test · Settlement test', owner: 'IT + Oracle Partner' },
-      { text: 'Fast ERP: chuẩn hóa format mã bill · đồng bộ với Opera reservationId', owner: 'Digital Product + Finance' },
-      { text: 'Fast ERP: Payment Adapter build xong · test nhận webhook VNPAY và OCB notify', owner: 'Digital Product' },
-      { text: 'Fast ERP: test post /deposits khi booking Confirmed', owner: 'Finance + Digital Product' },
-      { text: 'Fast ERP: test post /payment khi booking Checked-in', owner: 'Finance + Digital Product' },
-      { text: 'Fast ERP: FAST gọi OCB API · match mã bill · tạo chứng từ Nợ 113 / Có 1125 tự động', owner: 'Finance' },
-      { text: 'Fast ERP: test luồng không match → alert kế toán hoạt động đúng', owner: 'Finance' },
-    ]
-  },
-  {
-    title: 'Tích hợp vệ tinh P2',
-    items: [
-      { text: 'Invoice: FOLIO_CLOSED event listener live · HĐĐT test pass', owner: 'Finance' },
-      { text: 'Invoice: số hóa đơn ghi ngược lại Opera reservation đúng', owner: 'Finance' },
-      { text: 'Loyalty: Membership Type MVILLAGE_LOYALTY tạo trong Opera · Guest Profile Match ON', owner: 'Digital Product' },
-      { text: 'Loyalty: tier flow test sau check-out · Web/App hiển thị đúng', owner: 'Digital Product' },
-      { text: 'Dynamic Pricing: data pipeline chạy · RM dashboard hoạt động', owner: 'Revenue Manager' },
-    ]
-  },
-  {
-    title: 'Vận hành & training',
-    items: [
-      { text: 'Oracle Partner training 15.5 man-days hoàn thành · sign-off từng bộ phận', owner: 'Oracle Partner + GM' },
-      { text: 'SOP Opera Cloud cập nhật cho FO · HK · Revenue · Finance', owner: 'Digital Product' },
-      { text: 'User account và role cấp đúng cho tất cả nhân viên', owner: 'IT' },
-      { text: 'End-to-end test: đặt → check-in → charge → check-out → invoice pass', owner: 'Digital Product' },
-      { text: 'Bug P1 = 0 · Bug P2 có kế hoạch xử lý sau go-live', owner: 'Digital Product + Oracle Partner' },
-    ]
-  },
+var ckData=[
+  {title:'Hạ tầng & kết nối',items:[
+    {text:'Opera Cloud tenant provisioned · property code · chain code',owner:'Oracle Partner'},
+    {text:'PSP được xác nhận Oracle OPI certified · hỏi Oracle Partner tuần 1',owner:'Digital Product'},
+    {text:'OHIP Developer Portal: own app registered · sandbox access',owner:'IT'},
+    {text:'EFT Interface live · OPI Cloud Credit Card endpoint cấu hình xong',owner:'Oracle Partner'},
+    {text:'Pay By Link endpoint cấu hình · Advance Deposit Handling ON',owner:'Oracle Partner'},
+    {text:'OFIS E-Invoice cấu hình · test xuất hóa đơn thành công',owner:'Finance + Oracle Partner'}
+  ]},
+  {title:'Tích hợp vệ tinh P1',items:[
+    {text:'Website/App: booking flow test pass · profile sync 2 chiều OK',owner:'Digital Product'},
+    {text:'Channel Manager MV: allotment sync · Direct pool + OTA pool đúng',owner:'Digital Product'},
+    {text:'Hotellink: rate mapping đúng tất cả OTA · ARI Push test pass',owner:'Revenue Manager'},
+    {text:'Payment: quẹt thẻ token test · Pay By Link test · Settlement test',owner:'IT + Oracle Partner'},
+    {text:'Fast ERP: Payment Service build xong · test nhận webhook VNPAY và OCB',owner:'Digital Product'},
+    {text:'Fast ERP: FAST gọi OCB API · match mã bill · tạo chứng từ Nợ 113/Có 1125',owner:'Finance'}
+  ]},
+  {title:'Tích hợp vệ tinh P2',items:[
+    {text:'Invoice: FOLIO_CLOSED event listener live · HĐDT test pass',owner:'Finance'},
+    {text:'Invoice: số hóa đơn ghi ngược lại Opera reservation đúng',owner:'Finance'},
+    {text:'Loyalty: Membership Type MVILLAGE_LOYALTY · externalPointsDB = true',owner:'Digital Product'},
+    {text:'Loyalty: tier flow test sau check-out · Web/App hiển thị đúng',owner:'Digital Product'},
+    {text:'Dynamic Pricing: data pipeline chạy · RM dashboard hoạt động',owner:'Revenue Manager'}
+  ]},
+  {title:'Vận hành & training',items:[
+    {text:'Oracle Partner training 15.5 man-days hoàn thành · sign-off từng bộ phận',owner:'Oracle Partner + GM'},
+    {text:'SOP Opera Cloud cập nhật cho FO · HK · Revenue · Finance',owner:'Digital Product'},
+    {text:'User account và role cấp đúng cho tất cả nhân viên',owner:'IT'},
+    {text:'End-to-end test: đặt → check-in → charge → check-out → invoice pass',owner:'Digital Product'},
+    {text:'Bug P1 = 0 · Bug P2 có kế hoạch xử lý sau go-live',owner:'Digital Product + Oracle Partner'}
+  ]}
 ];
 
-function buildChecklist() {
-  const root = document.getElementById('checklist-root');
-  let html = '';
-  checkSections.forEach((sec, si) => {
-    html += `<div class="checklist-section">
-      <div class="checklist-section-title">${sec.title}</div>
-      <div class="check-card">`;
-    sec.items.forEach((item, ii) => {
-      html += `<div class="check-item" onclick="toggleCheck(this)" data-idx="${si}-${ii}">
-        <div class="check-box"></div>
-        <div class="check-text">${item.text}</div>
-        <div class="check-owner">${item.owner}</div>
-      </div>`;
+function buildChecklist(){
+  var r=document.getElementById('ck-root'),h='';
+  ckData.forEach(function(sec){
+    h+='<div class="csec"><div class="cst">'+sec.title+'</div><div class="ck">';
+    sec.items.forEach(function(item){
+      h+='<div class="ci" onclick="toggleCheck(this)"><div class="cb2"></div><div class="ct">'+item.text+'</div><div class="co">'+item.owner+'</div></div>';
     });
-    html += `</div></div>`;
+    h+='</div></div>';
   });
-  root.innerHTML = html;
+  r.innerHTML=h;
 }
 
-function toggleCheck(el) {
-  el.classList.toggle('done');
-  el.querySelector('.check-box').innerHTML = el.classList.contains('done') ? '✓' : '';
-  updateProgress();
+function toggleCheck(el){
+  el.classList.toggle('dn');
+  el.querySelector('.cb2').innerHTML=el.classList.contains('dn')?'&#x2713;':'';
+  var total=document.querySelectorAll('.ci').length;
+  var done=document.querySelectorAll('.ci.dn').length;
+  var pct=Math.round(done/total*100);
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('plbl').textContent=pct+'%';
 }
 
-function updateProgress() {
-  const total = document.querySelectorAll('.check-item').length;
-  const done = document.querySelectorAll('.check-item.done').length;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = pct + '%';
-}
-
-// ── INIT ────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  buildChecklist();
-  setTimeout(buildGantt, 100);
-});
+window.addEventListener('load',function(){buildChecklist();setTimeout(buildGantt,50);});
 </script>
 </body>
 </html>
